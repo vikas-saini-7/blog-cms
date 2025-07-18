@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import SiteHeader from "@/components/common/Header";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,8 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} antialiased dark`}
+        className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}
       >
+        <SiteHeader />
         {children}
       </body>
     </html>

@@ -1,10 +1,10 @@
 import Image from "next/image";
+import Hero from "@/components/landing/Hero";
 
 export default function Home() {
   return (
     <div>
-      <div className="font-heading text-5xl">Hello</div>
-      <div className="font-body text-5xl">Hello</div>
+      <Hero />
     </div>
   );
 }
