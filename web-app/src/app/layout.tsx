@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/common/Header";
+import Footer from "@/components/common/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ export default function RootLayout({
       >
         <SiteHeader />
         {children}
+        <Footer />
       </body>
     </html>
   );

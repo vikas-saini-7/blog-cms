@@ -40,7 +40,7 @@ export default function SiteHeader() {
   };
 
   return (
-    <header className="w-full border-b sticky top-0 bg-white z-50 py-2 h-[80] flex items-center">
+    <header className="w-full border-b sticky top-0 bg-white dark:bg-black z-50 py-2 h-[80] flex items-center">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link
           href="/"
@@ -81,25 +81,25 @@ export default function SiteHeader() {
 
                 <DropdownMenuContent
                   align="end"
-                  className="w-52 p-2 rounded-xl shadow-lg border border-gray-200 bg-white"
+                  className="w-52 p-2 rounded-xl shadow-lg"
                 >
-                  <div className="px-3 py-1.5 text-sm font-semibold text-gray-700">
+                  <div className="px-3 py-1.5 text-sm font-semibold ">
                     My Account
                   </div>
-                  <div className="border-t border-gray-100 my-1" />
+                  <div className="border-t border-gray-100/10 my-1" />
 
                   {userDropdownLinks.map((link) => (
                     <DropdownMenuItem asChild key={link.href}>
                       <Link
                         href={link.href}
-                        className="block px-3 py-2 rounded-md text-sm hover:bg-orange-100 text-gray-800 transition"
+                        className="block px-3 py-2 rounded-md text-sm hover:bg-orange-100  transition"
                       >
                         {link.label}
                       </Link>
                     </DropdownMenuItem>
                   ))}
 
-                  <div className="border-t border-gray-100 my-1" />
+                  <div className="border-t border-gray-100/10 my-1" />
 
                   <DropdownMenuItem asChild>
                     <Link
