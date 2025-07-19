@@ -9,3 +9,13 @@ export interface Blog {
   likes?: number;
   comments?: number;
 }
+
+export interface Author {
+  username: string;
+  name: string;
+  avatarUrl: string;
+  bio?: string;
+  isProfilePublic: boolean;
+  followersCount: number;
+  isFollowing: boolean;
+}
