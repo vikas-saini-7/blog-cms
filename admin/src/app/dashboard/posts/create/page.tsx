@@ -64,12 +64,12 @@ export default function CreateBlogPage() {
           {/* Cover Image Upload */}
           <label
             htmlFor="coverImage"
-            className="w-full h-64 border-2 border-dashed flex items-center justify-center cursor-pointer rounded-md relative overflow-hidden"
+            className="w-full h-72 border-2 border-dashed flex items-center justify-center cursor-pointer rounded-md relative overflow-hidden"
           >
             {coverImage ? (
               <div className="flex w-full h-full">
                 {/* Left Half - Image */}
-                <div className="w-1/2 h-full relative">
+                <div className="w-1/2 h-full relative aspect-video">
                   <Image
                     src={URL.createObjectURL(coverImage)}
                     alt="Cover Preview"
@@ -83,15 +83,15 @@ export default function CreateBlogPage() {
                   <button
                     type="button"
                     onClick={handleRemoveImage}
-                    className="h-1/2 w-full bg-destructive text-white hover:bg-destructive/90 rounded-tr-md"
+                    className="h-1/2 w-full bg-red-100 text- hover:bg-red-300 hover:underline cursor-pointer rounded-tr-md transition-all duration-200"
                   >
-                    Remove
+                    Remove Cover Image
                   </button>
                   <label
                     htmlFor="coverImage"
-                    className="h-1/2 w-full bg-muted text-center flex items-center justify-center hover:bg-muted/70 rounded-br-md"
+                    className="h-1/2 w-full bg-muted text-center flex items-center hover:underline cursor-pointer justify-center hover:bg-white rounded-br-md transition-all duration-200"
                   >
-                    Change Image
+                    Change Cover Image
                   </label>
                 </div>
               </div>
