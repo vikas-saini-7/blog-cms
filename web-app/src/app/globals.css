@@ -141,6 +141,10 @@ body.dark {
   background-color: black;
 }
 
+button{
+  cursor: pointer;
+}
+
 /* Customize pagination bullets */
 .custom-bullet {
   width: 12px;

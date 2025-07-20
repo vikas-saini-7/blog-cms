@@ -8,7 +8,7 @@ export default function BlogCard({ blog }: { blog: Blog }) {
   return (
     <Link
       href={`/blogs/${blog?.slug ?? "#"}`}
-      className="group rounded-xl overflow-hidden shadow-sm border bg-white dark:bg-muted hover:shadow-md transition flex flex-col"
+      className="group rounded-xl overflow-hidden shadow-sm border bg-white dark:bg-muted hover:shadow-md transition flex flex-col font-heading"
       aria-label={blog?.title}
     >
       <div className="relative w-full aspect-video overflow-hidden rounded-xl">

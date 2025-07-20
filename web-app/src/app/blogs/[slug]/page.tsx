@@ -83,7 +83,7 @@ export default function BlogDetailPage() {
           fill
           className="object-cover"
         />
-        <BookmarkButton />
+        <BookmarkButton size="md" />
       </div>
 
       {/* Posted Date & Time */}
