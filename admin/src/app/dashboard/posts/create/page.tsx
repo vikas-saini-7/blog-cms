@@ -10,6 +10,7 @@ import { Upload } from "lucide-react";
 import { TagsInput } from "@/components/blog-editor/TagsInput";
 import TiptapEditor from "@/components/blog-editor/TipTapEditor";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { IconEye } from "@tabler/icons-react";
 
 export default function CreateBlogPage() {
   const editor = useEditor({
@@ -40,6 +41,9 @@ export default function CreateBlogPage() {
     console.log({ title, tags, status, content, coverImage });
     // Call your API to save post here
   };
+  const handleRemoveImage = () => {
+    setCoverImage(null); // or however you're managing state
+  };
 
   return (
     <div className="flex w-full">
@@ -60,21 +64,45 @@ export default function CreateBlogPage() {
           {/* Cover Image Upload */}
           <label
             htmlFor="coverImage"
-            className="w-full h-64 border-2 border-dashed border-muted-foreground flex items-center justify-center cursor-pointer rounded-md relative"
+            className="w-full h-64 border-2 border-dashed flex items-center justify-center cursor-pointer rounded-md relative overflow-hidden"
           >
             {coverImage ? (
-              <Image
-                src={URL.createObjectURL(coverImage)}
-                alt="Cover Preview"
-                fill
-                className="object-cover rounded-md"
-              />
+              <div className="flex w-full h-full">
+                {/* Left Half - Image */}
+                <div className="w-1/2 h-full relative">
+                  <Image
+                    src={URL.createObjectURL(coverImage)}
+                    alt="Cover Preview"
+                    fill
+                    className="object-cover rounded-l-md"
+                  />
+                </div>
+
+                {/* Right Half - Buttons */}
+                <div className="w-1/2 h-full flex flex-col">
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="h-1/2 w-full bg-destructive text-white hover:bg-destructive/90 rounded-tr-md"
+                  >
+                    Remove
+                  </button>
+                  <label
+                    htmlFor="coverImage"
+                    className="h-1/2 w-full bg-muted text-center flex items-center justify-center hover:bg-muted/70 rounded-br-md"
+                  >
+                    Change Image
+                  </label>
+                </div>
+              </div>
             ) : (
+              // Default UI when no image selected
               <div className="flex flex-col items-center text-muted-foreground">
                 <Upload className="w-6 h-6 mb-2" />
                 <p>Click to upload cover image</p>
               </div>
             )}
+
             <input
               type="file"
               id="coverImage"
@@ -95,10 +123,16 @@ export default function CreateBlogPage() {
       <div className="w-1/4 flex flex-col gap-6 bg-white p-6">
         {/* Action Buttons */}
         <div className="flex flex-col gap-2">
+          <Button onClick={() => handleSubmit("publish")}>Publish</Button>
           <Button variant="outline" onClick={() => handleSubmit("draft")}>
             Save as Draft
           </Button>
-          <Button onClick={() => handleSubmit("publish")}>Publish</Button>
+        </div>
+        <div>
+          <label className="text-sm font-medium">Preview</label>
+          <Button variant="outline" className="w-full">
+            <IconEye /> Preview
+          </Button>
         </div>
         {/* Tags */}
         <div>
