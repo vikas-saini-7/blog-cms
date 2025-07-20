@@ -1,17 +1,15 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { Upload } from "lucide-react";
 import { TagsInput } from "@/components/blog-editor/TagsInput";
 import TiptapEditor from "@/components/blog-editor/TipTapEditor";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { IconEye } from "@tabler/icons-react";
-import Link from "next/link";
 
 export default function CreateBlogPage() {
   const editor = useEditor({
