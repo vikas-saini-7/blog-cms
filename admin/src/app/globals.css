@@ -141,3 +141,7 @@ body {
 body.dark {
   background-color: black;
 }
+
+[data-state="on"] {
+  @apply bg-primary text-white;
+}
