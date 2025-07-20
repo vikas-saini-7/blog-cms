@@ -141,7 +141,7 @@ body.dark {
   background-color: black;
 }
 
-button{
+button {
   cursor: pointer;
 }
 
@@ -160,4 +160,24 @@ button{
   background: #f97316 !important; /* Tailwind primary */
   opacity: 1;
   /* transform: scale(1.2); */
+}
+
+/* Customize nprogress color and size */
+#nprogress .bar {
+  background: #f97316 !important; /* Change this to any color you want (e.g., Tailwind indigo-600) */
+  height: 3px !important; /* Adjust thickness of the loader */
+}
+
+/* Optional: Fix bar position */
+#nprogress .bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1031;
+}
+
+/* Optional: Customize the blur/fade */
+#nprogress .peg {
+  box-shadow: 0 0 10px #f97316, 0 0 5px #f97316 !important;
 }
