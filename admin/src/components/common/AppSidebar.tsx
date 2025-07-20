@@ -65,8 +65,9 @@ export function AppSidebar() {
     <Sidebar className="w-64 border-r bg-background text-foreground">
       <SidebarContent className="p-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wide mb-2">
-            Application
+          <SidebarGroupLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wide flex-col items-start mb-4">
+            <h1 className="text-[16px]">CMS Console</h1>
+            <p className="text-[10px]">@username</p>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
