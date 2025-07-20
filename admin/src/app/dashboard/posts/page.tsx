@@ -53,7 +53,7 @@ const PostsPage = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">My Blogs</h2>
-        <Link href="/dashboard/posts/create">
+        <Link href="/dashboard/blog-editor">
           <Button>Create Blog</Button>
         </Link>
       </div>

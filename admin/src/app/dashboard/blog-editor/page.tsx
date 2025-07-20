@@ -11,6 +11,7 @@ import { TagsInput } from "@/components/blog-editor/TagsInput";
 import TiptapEditor from "@/components/blog-editor/TipTapEditor";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { IconEye } from "@tabler/icons-react";
+import Link from "next/link";
 
 export default function CreateBlogPage() {
   const editor = useEditor({
@@ -43,6 +44,12 @@ export default function CreateBlogPage() {
   };
   const handleRemoveImage = () => {
     setCoverImage(null); // or however you're managing state
+  };
+
+  const handleOpenPreview = () => {
+    // save as  draft first
+
+    window.open("/preview/draft-1234", "_blank");
   };
 
   return (
@@ -130,7 +137,11 @@ export default function CreateBlogPage() {
         </div>
         <div>
           <label className="text-sm font-medium">Preview</label>
-          <Button variant="outline" className="w-full">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleOpenPreview}
+          >
             <IconEye /> Preview
           </Button>
         </div>
