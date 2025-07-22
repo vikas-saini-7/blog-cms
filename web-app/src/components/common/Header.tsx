@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { signOut, useSession } from "next-auth/react";
 
 const commonLinks = [
   { href: "/popular", label: "Popular" },
@@ -18,26 +19,14 @@ const commonLinks = [
   { href: "/about", label: "About" },
 ];
 
-const guestLinks = [{ href: "/login", label: "Login", variant: "outline" }];
-
 const userDropdownLinks = [
   { href: "/profile", label: "Profile" },
   { href: "/settings", label: "Settings" },
   { href: "/dashboard", label: "Admin Dashboard" },
 ];
 
-const logoutLink = {
-  href: "/logout",
-  label: "Logout",
-  isLogout: true,
-};
-
 export default function SiteHeader() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const user = {
-    name: "Vikas",
-    avatarUrl: "",
-  };
+  const { data: session, status } = useSession();
 
   return (
     <header className="w-full border-b sticky top-0 bg-white dark:bg-black z-50 py-2 h-[80] flex items-center">
@@ -62,20 +51,29 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center space-x-2">
-          {!isAuthenticated &&
-            guestLinks.map((link) => (
-              <Button asChild key={link.href} variant={link.variant as any}>
-                <Link href={link.href}>{link.label}</Link>
-              </Button>
-            ))}
+          {!session?.user && (
+            <>
+              <Link href="/auth/login">
+                <Button variant="outline" className="px-8 py-5 text-md">
+                  Login
+                </Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button className="px-8 py-5 text-md">Regiter</Button>
+              </Link>
+            </>
+          )}
 
-          {isAuthenticated && (
+          {session?.user && (
             <div className="relative">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar className="cursor-pointer hover:ring-2 hover:ring-orange-400 transition-all duration-200 h-10 w-10">
-                    <AvatarImage src={user.avatarUrl} alt={user.name} />
-                    <AvatarFallback>{user.name[0]}</AvatarFallback>
+                    <AvatarImage
+                      src={session.user?.avatar}
+                      alt={session?.user?.name}
+                    />
+                    <AvatarFallback>{session?.user?.name[0]}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
 
@@ -102,12 +100,12 @@ export default function SiteHeader() {
                   <div className="border-t border-gray-100/10 my-1" />
 
                   <DropdownMenuItem asChild>
-                    <Link
-                      href={logoutLink.href}
+                    <div
+                      onClick={() => signOut()}
                       className="block px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 transition"
                     >
-                      {logoutLink.label}
-                    </Link>
+                      Logout
+                    </div>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -21,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { uploadAvatar } from "@/utils/uploadFile";
+import { useSession } from "next-auth/react";
 
 export default function OnboardingForm() {
   const [step, setStep] = useState(1);
@@ -32,29 +34,47 @@ export default function OnboardingForm() {
   const [dob, setDob] = useState<Date | undefined>(undefined);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(true);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const { data: session } = useSession();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAvatarFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setProfilePic(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = {
-      username,
-      profilePic,
-      bio,
-      gender,
-      role,
-      dob,
-      tags: selectedTags,
-      isPublic,
-    };
-    console.log(payload);
+
+    if (!session?.user?.id) return alert("User not logged in");
+    let avatarUrl: string | null = null;
+
+    try {
+      if (avatarFile) {
+        avatarUrl = await uploadAvatar(avatarFile, session.user.id);
+      }
+
+      const payload = {
+        username,
+        avatarUrl, // <-- use this instead of base64
+        bio,
+        gender,
+        role,
+        dob,
+        tags: selectedTags,
+        isPublic,
+      };
+
+      console.log(payload);
+      // Send `payload` to your API to save profile info
+    } catch (error) {
+      console.error("Failed to upload avatar:", error);
+      alert("Failed to upload avatar");
+    }
   };
 
   return (
@@ -62,7 +82,9 @@ export default function OnboardingForm() {
       onSubmit={handleSubmit}
       className="max-w-2xl mx-auto space-y-8 p-6 bg-white rounded-2xl shadow mt-10"
     >
-      <div className="text-2xl font-bold text-center">Complete Your Profile</div>
+      <div className="text-2xl font-bold text-center">
+        Complete Your Profile
+      </div>
 
       {step === 1 && (
         <div className="space-y-6">
@@ -198,7 +220,8 @@ export default function OnboardingForm() {
               Privacy Settings
             </h2>
             <p className="text-sm text-muted-foreground">
-              Decide who can view your profile. You can always change this later in your account settings.
+              Decide who can view your profile. You can always change this later
+              in your account settings.
             </p>
           </div>
 
@@ -222,11 +245,7 @@ export default function OnboardingForm() {
           </div>
 
           <div className="flex justify-between pt-6">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setStep(1)}
-            >
+            <Button type="button" variant="ghost" onClick={() => setStep(1)}>
               Back
             </Button>
             <Button type="submit" className="px-6">
