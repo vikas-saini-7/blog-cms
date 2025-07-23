@@ -1,24 +1,28 @@
 import { supabase } from "@/lib/supabaseClient";
 
-export const uploadAvatar = async (file: File, userId: string) => {
-  const fileExt = file.name.split(".").pop();
-  const filePath = `avatars/${userId}.${fileExt}`;
+export async function uploadAvatar(
+  file: File,
+  userId: string
+): Promise<string> {
+  if (!file || !userId) throw new Error("File or userId missing");
 
-  const { error: uploadError } = await supabase.storage
-    .from("my-supabase-bucket")
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${userId}.${fileExt}`;
+  const filePath = `${fileName}`;
+
+  console.log(filePath, userId);
+
+  // Upload the file to the avatars bucket
+  const { error } = await supabase.storage
+    .from("avatars")
     .upload(filePath, file, {
-      upsert: true,
-      contentType: file.type,
       cacheControl: "3600",
+      upsert: true,
     });
 
-  if (uploadError) {
-    throw new Error("Avatar upload failed: " + uploadError.message);
-  }
+  if (error) throw error;
 
-  const { data: publicUrlData } = supabase.storage
-    .from("my-supabase-bucket")
-    .getPublicUrl(filePath);
-
-  return publicUrlData.publicUrl;
-};
+  // Get public URL
+  const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+  return data.publicUrl;
+}

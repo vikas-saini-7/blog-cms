@@ -22,11 +22,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { uploadAvatar } from "@/utils/uploadFile";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function OnboardingForm() {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [step, setStep] = useState(1);
   const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("male");
@@ -34,33 +40,78 @@ export default function OnboardingForm() {
   const [dob, setDob] = useState<Date | undefined>(undefined);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isPublic, setIsPublic] = useState(true);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const { data: session } = useSession();
+  const [loading, setLoading] = useState(false);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setAvatarFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setProfilePic(reader.result as string);
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => setProfilePic(reader.result as string);
+    reader.readAsDataURL(file);
+
+    if (!session?.user?.id) {
+      toast.error("You must be logged in");
+      return;
     }
+
+    try {
+      toast.loading("Uploading avatar...");
+      const url = await uploadAvatar(file, session.user.id);
+      setAvatarUrl(url);
+      toast.success("Profile picture uploaded successfully!");
+    } catch (error) {
+      toast.error("Failed to upload profile picture.");
+      console.error(error);
+    } finally {
+      toast.dismiss();
+    }
+  };
+
+  const validateStep1 = () => {
+    if (!username.trim()) {
+      toast.error("Username is required");
+      return false;
+    }
+    if (!gender.trim()) {
+      toast.error("Gender is required");
+      return false;
+    }
+    if (!dob) {
+      toast.error("Date of birth is required");
+      return false;
+    }
+    if (!role.trim()) {
+      toast.error("Role is required");
+      return false;
+    }
+    if (selectedTags.length < 1) {
+      toast.error("Please select at least one tag");
+      return false;
+    }
+    if (!avatarUrl) {
+      toast.error("Profile picture is required");
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!session?.user?.id) return alert("User not logged in");
-    let avatarUrl: string | null = null;
+    if (!session?.user?.id) {
+      toast.error("You must be logged in to complete onboarding.");
+      return;
+    }
+
+    if (!validateStep1()) return;
+
+    setLoading(true);
 
     try {
-      if (avatarFile) {
-        avatarUrl = await uploadAvatar(avatarFile, session.user.id);
-      }
-
       const payload = {
         username,
-        avatarUrl, // <-- use this instead of base64
+        avatarUrl,
         bio,
         gender,
         role,
@@ -69,11 +120,23 @@ export default function OnboardingForm() {
         isPublic,
       };
 
-      console.log(payload);
-      // Send `payload` to your API to save profile info
+      console.log("Submitting payload:", payload);
+      // TODO: POST to API route here
+      const res = await axios.post("/api/onboarding", payload);
+
+      if (res.status == 200) {
+        toast.success("Profile completed successfully!");
+        // Refresh the session (fetches latest DB values via session callback)
+        await getSession();
+
+        // Then redirect to home
+        window.location.href = "/";
+      }
     } catch (error) {
-      console.error("Failed to upload avatar:", error);
-      alert("Failed to upload avatar");
+      console.error("Error during onboarding:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,44 +152,57 @@ export default function OnboardingForm() {
       {step === 1 && (
         <div className="space-y-6">
           <div className="flex flex-col items-center gap-2">
-            <Avatar className="w-24 h-24">
+            <Avatar
+              className={`w-24 h-24 border-4 ${
+                avatarUrl ? "border-green-400" : ""
+              } `}
+            >
               <AvatarImage src={profilePic || ""} alt="Profile" />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>
-            <Input type="file" accept="image/*" onChange={handleImageChange} />
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              disabled={loading}
+            />
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
             <Input
               id="username"
               type="text"
-              placeholder="yourusername"
+              placeholder="Your Username"
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              disabled={loading}
             />
           </div>
 
-          <div>
-            <Label htmlFor="bio">Bio</Label>
+          <div className="space-y-2">
+            <Label htmlFor="bio">
+              Bio <span className="text-gray-500">(optional)</span>
+            </Label>
             <Textarea
               id="bio"
               placeholder="Tell us about yourself..."
               value={bio}
               onChange={(e) => setBio(e.target.value)}
+              disabled={loading}
             />
           </div>
 
-          {/* Combined Row for DOB, Gender, Role */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+            <div className="space-y-2">
               <Label>Date of Birth</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className="w-full justify-start text-left font-normal"
+                    disabled={loading}
                   >
                     {dob ? format(dob, "PPP") : "Pick a date"}
                   </Button>
@@ -141,9 +217,13 @@ export default function OnboardingForm() {
                 </PopoverContent>
               </Popover>
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Gender</Label>
-              <Select value={gender} onValueChange={setGender}>
+              <Select
+                value={gender}
+                onValueChange={setGender}
+                disabled={loading}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
@@ -154,9 +234,9 @@ export default function OnboardingForm() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Your Role</Label>
-              <Select value={role} onValueChange={setRole}>
+              <Select value={role} onValueChange={setRole} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -171,7 +251,7 @@ export default function OnboardingForm() {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label>Content Preferences</Label>
             <div className="flex flex-wrap gap-2 mt-2">
               {[
@@ -198,6 +278,7 @@ export default function OnboardingForm() {
                         : [...prev, tag]
                     )
                   }
+                  disabled={loading}
                 >
                   {tag}
                 </Button>
@@ -206,7 +287,13 @@ export default function OnboardingForm() {
           </div>
 
           <div className="flex justify-end">
-            <Button type="button" onClick={() => setStep(2)}>
+            <Button
+              type="button"
+              onClick={() => {
+                if (validateStep1()) setStep(2);
+              }}
+              disabled={loading}
+            >
               Next
             </Button>
           </div>
@@ -231,6 +318,7 @@ export default function OnboardingForm() {
               checked={isPublic}
               onCheckedChange={setIsPublic}
               aria-label="Toggle profile visibility"
+              disabled={loading}
             />
             <div>
               <Label htmlFor="public-switch" className="text-base font-medium">
@@ -245,11 +333,16 @@ export default function OnboardingForm() {
           </div>
 
           <div className="flex justify-between pt-6">
-            <Button type="button" variant="ghost" onClick={() => setStep(1)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setStep(1)}
+              disabled={loading}
+            >
               Back
             </Button>
-            <Button type="submit" className="px-6">
-              Finish Onboarding
+            <Button type="submit" className="px-6" disabled={loading}>
+              {loading ? "Submitting..." : "Finish Onboarding"}
             </Button>
           </div>
         </div>
