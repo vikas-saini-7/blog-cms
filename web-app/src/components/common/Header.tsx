@@ -40,9 +40,9 @@ export default function SiteHeader() {
         </Link>
 
         <nav className="hidden md:flex space-x-6 text-md font-medium items-center">
-          {commonLinks.map((link) => (
+          {commonLinks.map((link, idx) => (
             <Link
-              key={link.href}
+              key={idx}
               href={link.href}
               className="hover:text-orange-500 transition-colors px-2 py-2 duration-300 ease-in-out"
             >
