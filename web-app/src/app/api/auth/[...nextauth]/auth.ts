@@ -62,6 +62,10 @@ export const authOptions: AuthOptions = {
         session.user.isOnboarded = userFromDB.isOnboarded ?? false;
       }
 
+      if (userFromDB?.isOnboarded) {
+        session.user.avatar = userFromDB.avatar;
+      }
+
       return session;
     },
   },

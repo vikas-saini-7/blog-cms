@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut, useSession } from "next-auth/react";
+import HeaderAuthSkeleton from "../skeletons/HeaderAuthSkeleton";
 
 const commonLinks = [
   { href: "/popular", label: "Popular" },
@@ -51,7 +52,8 @@ export default function SiteHeader() {
         </nav>
 
         <div className="flex items-center space-x-2">
-          {!session?.user && (
+          {status === "loading" && <HeaderAuthSkeleton />}
+          {status !== "loading" && !session?.user && (
             <>
               <Link href="/auth/login">
                 <Button variant="outline" className="px-8 py-5 text-md">
@@ -69,10 +71,12 @@ export default function SiteHeader() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar className="cursor-pointer hover:ring-2 hover:ring-orange-400 transition-all duration-200 h-10 w-10">
-                    <AvatarImage
-                      src={session.user?.avatar}
-                      alt={session?.user?.name}
-                    />
+                    {session?.user.avatar && (
+                      <AvatarImage
+                        src={session.user?.avatar}
+                        alt={session?.user?.name}
+                      />
+                    )}
                     <AvatarFallback>{session?.user?.name[0]}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
