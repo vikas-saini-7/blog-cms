@@ -13,17 +13,11 @@ import {
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Author } from "@/types";
-
-const author: Author = {
-  username: "vikas",
-  name: "Vikas Saini",
-  avatarUrl: "https://www.shareicon.net/data/2016/07/05/791214_man_512x512.png",
-  bio: "Full Stack Developer & UI/UX enthusiast 🚀",
-  isProfilePublic: true,
-  followersCount: 1200,
-  isFollowing: false,
-};
+import { Author, Profile } from "@/types";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+import ProfilePageSkeleton from "@/components/skeletons/ProfilePageSkeleton";
 
 const tabs = [
   { href: "/profile", label: "Profile", icon: IconUser },
@@ -39,6 +33,30 @@ export default function AuthorLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [profile, setProfile] = useState<Profile>();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get("/api/profile");
+        console.log(res);
+        if (res.status == 200) {
+          setProfile(res.data.user);
+        } else {
+          toast.error("Error fetching profile");
+        }
+      } catch (error) {
+        console.error("Error fetching profile", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  if (loading) return <ProfilePageSkeleton />;
 
   return (
     <div className="min-h-screen w-full bg-background">
@@ -49,28 +67,34 @@ export default function AuthorLayout({
         <Card className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <Avatar className="w-20 h-20">
-              <AvatarImage src={author.avatarUrl} alt={author.name} />
-              <AvatarFallback>{author.name[0]}</AvatarFallback>
+              <AvatarImage src={profile?.avatar} alt={profile?.name} />
+              <AvatarFallback>{profile?.name[0]}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-xl font-semibold">{author.name}</h1>
+              <h1 className="text-xl font-semibold">{profile?.name}</h1>
               <p className="text-muted-foreground text-sm">
-                @{author.username}
+                @{profile?.username}
               </p>
-              {author.bio && (
+              {profile?.bio && (
                 <p className="mt-1 text-sm text-gray-600 max-w-md">
-                  {author.bio}
+                  {profile?.bio}
                 </p>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-2 sm:mt-0">
-            <p className="text-sm text-gray-500">
-              {author.followersCount} followers
-            </p>
-            <Button variant={author.isFollowing ? "outline" : "default"}>
-              {author.isFollowing ? "Unfollow" : "Follow"}
-            </Button>
+          <div className="flex justify-around gap-4 md:gap-6 lg:gap-10 text-2xl w-1/2">
+            <div className="text-center">
+              <h1 className="font-bold">6</h1>
+              <p className="text-sm text-gray-500">Total Posts</p>
+            </div>
+            <div className="text-center">
+              <h1 className="font-bold">301</h1>
+              <p className="text-sm text-gray-500">Total Reads</p>
+            </div>
+            <div className="text-center">
+              <h1 className="font-bold">26</h1>
+              <p className="text-sm text-gray-500">Total Followers</p>
+            </div>
           </div>
         </Card>
       </div>

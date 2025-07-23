@@ -10,22 +10,23 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     const body = await req.json();
     const { username, avatarUrl, bio, gender, role, dob, tags, isPublic } =
       body;
 
-    // ✅ Validate required fields
     if (!username || !gender || !dob || !role || !tags || tags.length === 0) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { success: false, error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // ✅ Update the user in the database
     const updatedUser = await prisma.user.update({
       where: {
         email: session.user.email,
@@ -35,11 +36,11 @@ export async function POST(req: NextRequest) {
         avatar: avatarUrl,
         bio,
         DOB: new Date(dob),
-        gender: gender.toUpperCase(), // must match enum key: MALE, FEMALE, OTHER
-        designation: role.toUpperCase(), // must match enum key
+        gender: gender.toUpperCase(),
+        designation: role.toUpperCase(),
         contentPreferences: tags.map((tag: string) =>
           tag.toUpperCase().replaceAll(" ", "_")
-        ), // convert tags like "Web Development" → "WEB_DEVELOPMENT"
+        ),
         isPublic,
         isOnboarded: true,
       },
