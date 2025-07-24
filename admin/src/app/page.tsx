@@ -3,21 +3,58 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
+import { toast } from "sonner";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export default function Page() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (result?.ok) {
+        toast.success("Logged in successfully!");
+        router.push("/dashboard");
+      } else {
+        console.error("Login failed:", result?.error);
+        toast.error("Invalid credentials");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-md mx-auto space-y-6 rounded-2xl shadow-xl p-8 bg-white mt-20">
       <h2 className="text-2xl font-bold text-center">Login to your account</h2>
 
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleLogin}>
         <div>
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
             placeholder="you@example.com"
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
@@ -27,10 +64,21 @@ export default function Page() {
             id="password"
             type="password"
             placeholder="••••••••"
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
             required
           />
         </div>
-        <Button className="w-full rounded-2xl">Login</Button>
+        <Button type="submit" className="w-full rounded-2xl" disabled={loading}>
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="animate-spin h-4 w-4" />
+              Logging in...
+            </div>
+          ) : (
+            "Login"
+          )}
+        </Button>
       </form>
 
       <div className="relative my-4 text-center text-muted-foreground">
@@ -41,7 +89,6 @@ export default function Page() {
       </div>
 
       <OAuthButtons />
-
     </div>
   );
 }

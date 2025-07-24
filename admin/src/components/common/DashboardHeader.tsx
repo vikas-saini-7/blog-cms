@@ -7,36 +7,23 @@ import { Bell, Search, Sun } from "lucide-react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-
-const user = {
-  name: "Vikas",
-  avatarUrl: "", // set avatar URL if you have one
-};
+import { signOut, useSession } from "next-auth/react";
+import HeaderAuthSkeleton from "../skeletons/HeaderAuthSkeleton";
 
 const userDropdownLinks = [
   { href: "/profile", label: "Profile" },
   { href: "/settings", label: "Settings" },
   { href: "/dashboard", label: "Admin Dashboard" },
 ];
-
-const logoutLink = {
-  href: "/logout",
-  label: "Logout",
-};
-
 const DashboardHeader = () => {
-  const [isAuthenticated] = useState(true); // You can integrate real auth logic here
+  const { data: session, status } = useSession();
 
   return (
     <header className="flex items-center justify-between gap-4 px-4 py-3 border-b bg-background">
@@ -62,12 +49,19 @@ const DashboardHeader = () => {
           <Bell className="h-5 w-5" />
         </Button>
 
-        {isAuthenticated && (
+        {status === "loading" && <HeaderAuthSkeleton />}
+
+        {session?.user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar className="h-9 w-9 cursor-pointer hover:ring-2 hover:ring-orange-400 transition">
-                <AvatarImage src={user.avatarUrl} alt={user.name} />
-                <AvatarFallback>{user.name[0]}</AvatarFallback>
+                {session?.user.avatar && (
+                  <AvatarImage
+                    src={session.user?.avatar}
+                    alt={session?.user?.name}
+                  />
+                )}
+                <AvatarFallback>{session?.user.name[0]}</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
 
@@ -95,12 +89,12 @@ const DashboardHeader = () => {
               <div className="border-t border-gray-100/10 my-1" />
 
               <DropdownMenuItem asChild>
-                <Link
-                  href={logoutLink.href}
+                <div
+                  onClick={() => signOut()}
                   className="block px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 transition"
                 >
-                  {logoutLink.label}
-                </Link>
+                  Logout
+                </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
