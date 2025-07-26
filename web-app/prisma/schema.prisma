@@ -9,23 +9,50 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id                 String              @id @default(uuid())
-  name               String
-  email              String              @unique
-  password           String
-  avatar             String?
-  bio                String?
-  username           String?             @unique
-  isPublic           Boolean?            @default(true)
-  DOB                DateTime?
-  gender             Gender?
-  designation        UserDesignation?
-  contentPreferences ContentPreference[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  isOnboarded        Boolean?            @default(false)
-}
+// model User {
+//   id                 String              @id @default(uuid())
+//   name               String
+//   email              String              @unique
+//   password           String
+//   avatar             String?
+//   bio                String?
+//   username           String?             @unique
+//   isPublic           Boolean?            @default(true)
+//   DOB                DateTime?
+//   gender             Gender?
+//   designation        UserDesignation?
+//   contentPreferences ContentPreference[]
+//   createdAt          DateTime            @default(now())
+//   updatedAt          DateTime            @updatedAt
+//   isOnboarded        Boolean?            @default(false)
+// }
+
+// enum Gender {
+//   MALE
+//   FEMALE
+//   OTHER
+// }
+
+// enum UserDesignation {
+//   STUDENT
+//   ENTREPRENEUR
+//   DEVELOPER
+//   DESIGNER
+//   OTHER
+// }
+
+// enum ContentPreference {
+//   AI
+//   WEB_DEVELOPMENT
+//   DESIGN
+//   TECH_NEWS
+//   OPEN_SOURCE
+//   STARTUPS
+//   MOBILE
+//   GAME_DEV
+//   MACHINE_LEARNING
+//   PRODUCTIVITY
+// }
 
 enum Gender {
   MALE
@@ -52,4 +79,148 @@ enum ContentPreference {
   GAME_DEV
   MACHINE_LEARNING
   PRODUCTIVITY
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model User {
+  id                 String              @id @default(uuid())
+  name               String
+  email              String              @unique
+  password           String
+  avatar             String?
+  bio                String?
+  username           String?             @unique
+  isPublic           Boolean?            @default(true)
+  DOB                DateTime?
+  gender             Gender?
+  designation        UserDesignation?
+  contentPreferences ContentPreference[]
+  isOnboarded        Boolean?            @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  posts     Post[]
+  followers UserFollower[] @relation("followers")
+  following UserFollower[] @relation("following")
+  bookmarks Bookmark[]
+  likes     Like[]
+  comments  Comment[]
+}
+
+model Post {
+  id          String     @id @default(uuid())
+  title       String
+  slug        String     @unique
+  content     String
+  coverImage  String?
+  description String?
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?
+  views       Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  comments       Comment[]
+  likes          Like[]
+  bookmarks      Bookmark[]
+  postTags       PostTag[]
+  postCategories PostCategory[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isEdited  Boolean? @default(false)
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  postCategories PostCategory[]
+}
+
+model Tag {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  postTags PostTag[]
+}
+
+model UserFollower {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("following", fields: [followerId], references: [id])
+  following User @relation("followers", fields: [followingId], references: [id])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+}
+
+model PostTag {
+  postId String
+  tagId  String
+
+  post Post @relation(fields: [postId], references: [id])
+  tag  Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([postId, tagId])
+}
+
+model PostCategory {
+  postId     String
+  categoryId String
+
+  post     Post     @relation(fields: [postId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@id([postId, categoryId])
 }
