@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         hostname: "www.shareicon.net",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "dcqvlggtmjzpytvfbohq.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
     ],
   },
 };

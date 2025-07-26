@@ -1,11 +1,16 @@
 "use client";
 
-"use client";
-
 import { useEffect, useState } from "react";
-import { getUserBlogs } from "@/actions/blog.actions";
+import { deleteBlog, getUserBlogs } from "@/actions/blog.actions";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -18,6 +23,9 @@ import { Pencil, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Blog } from "@/types";
+import BlogSkeleton from "@/components/skeletons/BlogTableSkeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 const POSTS_PER_PAGE = 7;
 type BlogWithStatus = Blog & { status: "draft" | "published" };
@@ -27,6 +35,10 @@ export default function PostsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "drafts" | "published">("all");
   const [page, setPage] = useState(1);
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [slugToConfirm, setSlugToConfirm] = useState("");
+  const [selectedBlog, setSelectedBlog] = useState<BlogWithStatus | null>(null);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -39,11 +51,11 @@ export default function PostsPage() {
             id: b.id,
             title: b.title,
             description: b.description,
-            image: b.coverImage || "", // fallback if null
+            image: b.coverImage || "",
             slug: b.slug,
-            category: "tech", // update if you add real categories
+            category: "tech",
             likes: b.likes ?? 0,
-            comments: 0, // set if you implement comments
+            comments: 0,
             status: b.status === "DRAFT" ? "draft" : "published",
           }))
         );
@@ -66,11 +78,30 @@ export default function PostsPage() {
 
   const totalPages = Math.ceil(filteredBlogs.length / POSTS_PER_PAGE);
 
+  const handleDeleteClick = (blog: BlogWithStatus) => {
+    setSelectedBlog(blog);
+    setSlugToConfirm("");
+    setOpenDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (selectedBlog && slugToConfirm === selectedBlog.slug) {
+      const res = await deleteBlog(selectedBlog.id);
+      if (res.success) {
+        setBlogs((prev) => prev.filter((b) => b.id !== selectedBlog.id));
+        setOpenDialog(false);
+        toast.success("Blog Deleted Successfully");
+      } else {
+        alert(res.message || "Failed to delete blog.");
+      }
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">My Blogs</h2>
-        <Link href="/dashboard/blog-editor/blogId">
+        <Link href="/dashboard/blog-editor">
           <Button>Create Blog</Button>
         </Link>
       </div>
@@ -84,14 +115,14 @@ export default function PostsPage() {
       </Tabs>
 
       {loading ? (
-        <p className="text-muted-foreground">Loading...</p>
+        <BlogSkeleton rows={POSTS_PER_PAGE} />
       ) : (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
                 <TableHead>Image</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Likes</TableHead>
                 <TableHead>Comments</TableHead>
@@ -102,16 +133,16 @@ export default function PostsPage() {
             <TableBody>
               {paginatedBlogs.map((blog) => (
                 <TableRow key={blog.id}>
-                  <TableCell className="font-medium">{blog.title}</TableCell>
                   <TableCell>
                     <Image
                       src={blog.image}
                       alt={blog.title}
                       width={50}
                       height={50}
-                      className="rounded-md object-cover"
+                      className="rounded-md object-cover h-10 w-16"
                     />
                   </TableCell>
+                  <TableCell className="font-medium">{blog.title}</TableCell>
                   <TableCell className="capitalize">{blog.category}</TableCell>
                   <TableCell>{blog.likes}</TableCell>
                   <TableCell>{blog.comments}</TableCell>
@@ -132,12 +163,16 @@ export default function PostsPage() {
                         <Pencil className="w-4 h-4" />
                       </Button>
                     </Link>
-                    <Link href={`/blog/${blog.slug}`} target="_blank">
+                    <Link href={`/preview/${blog.id}`} target="_blank">
                       <Button variant="outline" size="icon">
                         <Eye className="w-4 h-4" />
                       </Button>
                     </Link>
-                    <Button variant="destructive" size="icon">
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => handleDeleteClick(blog)}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </TableCell>
@@ -166,6 +201,48 @@ export default function PostsPage() {
           )}
         </>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Blog Post</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              You are about to permanently delete the blog post{" "}
+              <strong>{selectedBlog?.title}</strong>. This action is
+              irreversible and will also remove{" "}
+              <strong>all associated data</strong> including likes, reads,
+              comments, and other metadata.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              To confirm, please type:{" "}
+              <code className="px-1 py-0.5 bg-muted rounded">
+                {selectedBlog?.slug}
+              </code>{" "}
+              below.
+            </p>
+            <Input
+              placeholder="Enter blog slug"
+              value={slugToConfirm}
+              onChange={(e) => setSlugToConfirm(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={slugToConfirm !== selectedBlog?.slug}
+              onClick={confirmDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

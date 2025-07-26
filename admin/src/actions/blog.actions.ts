@@ -177,10 +177,40 @@ export async function getUserBlogs() {
         createdAt: "desc",
       },
     });
+    
 
     return { success: true, blogs };
   } catch (error) {
     console.error("getUserBlogs error:", error);
+    return { success: false, message: "Something went wrong" };
+  }
+}
+
+export async function deleteBlog(blogId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return { success: false, message: "Unauthorized" };
+    }
+
+    // Ensure only the owner can delete
+    const blog = await prisma.post.findUnique({
+      where: { id: blogId },
+    });
+
+    if (!blog || blog.authorId !== session.user.id) {
+      return { success: false, message: "Not authorized or blog not found" };
+    }
+
+    await prisma.post.delete({
+      where: { id: blogId },
+    });
+
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("deleteBlog error:", error);
     return { success: false, message: "Something went wrong" };
   }
 }
