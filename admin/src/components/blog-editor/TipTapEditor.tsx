@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 export default function TiptapEditor({
   content,
@@ -65,6 +65,15 @@ export default function TiptapEditor({
     immediatelyRender: false,
   });
 
+  useEffect(() => {
+  if (!editor) return;
+
+  const currentHTML = editor.getHTML();
+  if (content !== currentHTML) {
+    editor.commands.setContent(content); // Don't trigger onUpdate loop
+  }
+}, [content, editor]);
+
   const addImage = useCallback(() => {
     const url = window.prompt("Enter image URL:");
     if (url) {
@@ -73,6 +82,8 @@ export default function TiptapEditor({
   }, [editor]);
 
   if (!editor) return null;
+
+  
 
   return (
     <div className="border border-input rounded-md overflow-hidden">
