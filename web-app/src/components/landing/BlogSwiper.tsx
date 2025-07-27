@@ -8,6 +8,8 @@ import "swiper/css/pagination";
 import Image from "next/image";
 import Link from "next/link";
 import { Blog } from "@/types";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { formatDistanceToNow } from "date-fns";
 
 interface BlogSwiperProps {
   blogs: Blog[];
@@ -40,18 +42,39 @@ const BlogSwiper: React.FC<BlogSwiperProps> = ({ blogs }) => {
               <div className="mb-16 bg-card border border-muted rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full min-h-[420px]">
                 <div className="relative w-full aspect-video">
                   <Image
-                    src={blog.image}
+                    src={blog.coverImage as string}
                     alt={blog.title}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105 max-h-[200px] max-w-xl"
                   />
                 </div>
                 <div className="p-4 flex flex-col flex-1">
+                  {blog.author && (
+                    <div className="flex items-center gap-2 mb-3">
+                      <Avatar className="w-6 h-6">
+                        <AvatarImage src={blog?.author?.avatar || ""} />
+                        <AvatarFallback className="text-xs">
+                          {blog?.author?.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm text-muted-foreground">
+                        {blog?.author?.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">•</span>
+                      <span className="text-xs text-muted-foreground">
+                        {blog.publishedAt &&
+                          formatDistanceToNow(new Date(blog.publishedAt), {
+                            addSuffix: true,
+                          })}
+                      </span>
+                    </div>
+                  )}
                   <h2 className="text-lg sm:text-xl font-semibold text-foreground line-clamp-2 mb-2">
                     {blog.title}
                   </h2>
                   <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                    {blog.description}
+                    {blog.description ||
+                      "This is dummy description. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eius, culpa?"}
                   </p>
                   <div className="mt-auto">
                     <span className="text-sm text-primary font-medium hover:underline">

@@ -377,3 +377,253 @@ export async function getRelatedBlogs(
     throw new Error("Failed to fetch related blogs");
   }
 }
+
+export interface LandingBlog {
+  id: string;
+  title: string;
+  description: string | null;
+  slug: string;
+  coverImage: string | null;
+  publishedAt: Date | null;
+  views: number;
+  likes: number;
+  comments: number;
+  author: {
+    id: string;
+    name: string;
+    username: string | null;
+    avatar: string | null;
+  };
+  category?: string;
+  tags: Array<{
+    id: string;
+    name: string;
+    slug: string;
+  }>;
+}
+
+export async function getFeaturedBlogs(
+  limit: number = 6
+): Promise<LandingBlog[]> {
+  try {
+    const blogs = await prisma.post.findMany({
+      where: {
+        status: PostStatus.PUBLISHED,
+      },
+      orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
+      take: limit,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+        postTags: {
+          include: {
+            tag: true,
+          },
+        },
+        postCategories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    return blogs.map((post: any) => ({
+      id: post.id,
+      title: post.title,
+      description: post.description,
+      slug: post.slug,
+      coverImage: post.coverImage,
+      publishedAt: post.publishedAt,
+      views: post.views,
+      likes: post._count.likes,
+      comments: post._count.comments,
+      author: post.author,
+      category: post.postCategories[0]?.category.slug,
+      tags: post.postTags.map((pt: any) => pt.tag),
+    }));
+  } catch (error) {
+    console.error("Error fetching featured blogs:", error);
+    return [];
+  }
+}
+
+export async function getPopularBlogs(
+  limit: number = 8
+): Promise<LandingBlog[]> {
+  try {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const blogs = await prisma.post.findMany({
+      where: {
+        status: PostStatus.PUBLISHED,
+        publishedAt: {
+          gte: thirtyDaysAgo,
+        },
+      },
+      orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
+      take: limit,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+        postTags: {
+          include: {
+            tag: true,
+          },
+        },
+        postCategories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    return blogs.map((post: any) => ({
+      id: post.id,
+      title: post.title,
+      description: post.description,
+      slug: post.slug,
+      coverImage: post.coverImage,
+      publishedAt: post.publishedAt,
+      views: post.views,
+      likes: post._count.likes,
+      comments: post._count.comments,
+      author: post.author,
+      category: post.postCategories[0]?.category.slug,
+      tags: post.postTags.map((pt: any) => pt.tag),
+    }));
+  } catch (error) {
+    console.error("Error fetching popular blogs:", error);
+    return [];
+  }
+}
+
+export async function getBlogsByTag(
+  tagSlug: string,
+  limit: number = 6
+): Promise<LandingBlog[]> {
+  try {
+    const blogs = await prisma.post.findMany({
+      where: {
+        status: PostStatus.PUBLISHED,
+        postTags: {
+          some: {
+            tag: {
+              slug: tagSlug,
+            },
+          },
+        },
+      },
+      orderBy: {
+        publishedAt: "desc",
+      },
+      take: limit,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+        postTags: {
+          include: {
+            tag: true,
+          },
+        },
+        postCategories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    return blogs.map((post: any) => ({
+      id: post.id,
+      title: post.title,
+      description: post.description,
+      slug: post.slug,
+      coverImage: post.coverImage,
+      publishedAt: post.publishedAt,
+      views: post.views,
+      likes: post._count.likes,
+      comments: post._count.comments,
+      author: post.author,
+      category: post.postCategories[0]?.category.slug,
+      tags: post.postTags.map((pt: any) => pt.tag),
+    }));
+  } catch (error) {
+    console.error(`Error fetching blogs by tag ${tagSlug}:`, error);
+    return [];
+  }
+}
+
+export async function getTrendingTags(limit: number = 6) {
+  try {
+    const tags = await prisma.tag.findMany({
+      include: {
+        _count: {
+          select: {
+            postTags: {
+              where: {
+                post: {
+                  status: PostStatus.PUBLISHED,
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        postTags: {
+          _count: "desc",
+        },
+      },
+      take: limit,
+    });
+
+    return tags.map((tag) => ({
+      id: tag.id,
+      name: tag.name,
+      slug: tag.slug,
+      postCount: tag._count.postTags,
+    }));
+  } catch (error) {
+    console.error("Error fetching trending tags:", error);
+    return [];
+  }
+}
