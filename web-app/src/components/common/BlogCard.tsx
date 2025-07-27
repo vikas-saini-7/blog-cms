@@ -1,7 +1,7 @@
 import { Blog } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, Heart } from "lucide-react";
+import { MessageCircle, Heart, Eye } from "lucide-react";
 
 export default function BlogCard({ blog }: { blog: Blog }) {
   return (
@@ -39,6 +39,10 @@ export default function BlogCard({ blog }: { blog: Blog }) {
           )}
 
           <div className="flex items-center space-x-4 text-muted-foreground text-xs">
+            <div className="flex items-center gap-1">
+              <Eye className="w-4 h-4" />
+              <span>{blog?.views ?? 0}</span>
+            </div>
             <div className="flex items-center gap-1">
               <Heart className="w-4 h-4" />
               <span>{blog?.likes ?? 0}</span>

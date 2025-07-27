@@ -13,7 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import BlogCard from "@/components/blogs/BlogCard";
+import BlogCard from "@/components/common/BlogCard";
 import { fetchBlogs, getTags } from "@/actions/blog.actions";
 import BlogCardSkeleton from "@/components/skeletons/BlogCardSkeleton";
 

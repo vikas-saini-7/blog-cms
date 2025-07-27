@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getProfileData, getUserPosts } from "@/actions/profile.actions";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import BlogCard from "@/components/blogs/BlogCard";
+import BlogCard from "@/components/common/BlogCard";
 
 interface Post {
   id: string;

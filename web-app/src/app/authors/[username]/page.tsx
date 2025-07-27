@@ -1,5 +1,6 @@
 "use client";
-import BlogCard from "@/components/blogs/BlogCard";
+import BlogCard from "@/components/common/BlogCard";
+import ProfilePageSkeleton from "@/components/skeletons/ProfilePageSkeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,94 +11,118 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Author, Blog } from "@/types";
+import {
+  getAuthorBlogs,
+  getAuthorProfile,
+  AuthorBlog,
+  AuthorProfile,
+} from "@/actions/author.actions";
 import { CalendarClock, Flame } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-const author: Author = {
-  username: "vikas",
-  name: "Vikas Saini",
-  avatarUrl: "https://www.shareicon.net/data/2016/07/05/791214_man_512x512.png",
-  bio: "Full Stack Developer & UI/UX enthusiast 🚀",
-  isProfilePublic: true,
-  followersCount: 1200,
-  isFollowing: false,
-};
-
-const TAGS = ["tech", "design", "entertainment", "health", "politics"];
 const SORTS = ["latest", "popular"];
 const TIMES = ["24h", "7d", "30d", "all"];
-
-const blogs: Blog[] = [
-  {
-    id: "1",
-    title: "Why Minimalism in Web Design Works",
-    slug: "minimal-web-design",
-    description:
-      "Discover how minimalism enhances readability, performance, and aesthetics in modern web design.",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-  },
-  {
-    id: "2",
-    title: "Mastering Next.js for Blog Development",
-    slug: "nextjs-blog-guide",
-    description:
-      "A practical guide to using Next.js for creating dynamic and fast-loading blog experiences.",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-  },
-  {
-    id: "3",
-    title: "Tailwind CSS: The Utility-First Revolution",
-    slug: "tailwind-utility-first",
-    description:
-      "How Tailwind CSS redefines styling by empowering developers to build consistent UIs rapidly.",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-  },
-  {
-    id: "3",
-    title: "Tailwind CSS: The Utility-First Revolution",
-    slug: "tailwind-utility-first",
-    description:
-      "How Tailwind CSS redefines styling by empowering developers to build consistent UIs rapidly.",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-  },
-  {
-    id: "3",
-    title: "Tailwind CSS: The Utility-First Revolution",
-    slug: "tailwind-utility-first",
-    description:
-      "How Tailwind CSS redefines styling by empowering developers to build consistent UIs rapidly.",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-  },
-  {
-    id: "3",
-    title: "Tailwind CSS: The Utility-First Revolution",
-    slug: "tailwind-utility-first",
-    description:
-      "How Tailwind CSS redefines styling by empowering developers to build consistent UIs rapidly.",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-  },
-];
 
 export default function AuthorProfilePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { username } = useParams();
 
-  const tag = searchParams.get("tag") ?? "";
   const sort = searchParams.get("sort") ?? "latest";
   const time = searchParams.get("time") ?? "all";
+  const search = searchParams.get("search") ?? "";
+
+  const [profile, setProfile] = useState<AuthorProfile | null>(null);
+  const [blogs, setBlogs] = useState<AuthorBlog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [blogsLoading, setBlogsLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState(search);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+
   const updateQuery = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set(key, value);
-    router.push(`/authors/${"vikas"}?${params.toString()}`);
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    router.push(`/authors/${username}?${params.toString()}`);
   };
+
+  const fetchAuthorData = async () => {
+    try {
+      setLoading(true);
+      const profileData = await getAuthorProfile(username as string);
+      if (!profileData) {
+        toast.error("Author not found");
+        return;
+      }
+      setProfile(profileData);
+    } catch (error) {
+      console.error("Error fetching author profile:", error);
+      toast.error("Failed to load author profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBlogs = async () => {
+    try {
+      setBlogsLoading(true);
+      const blogsData = await getAuthorBlogs(username as string, {
+        sort: sort as "latest" | "popular",
+        time: time as "24h" | "7d" | "30d" | "all",
+        search: searchInput,
+        page: 1,
+        limit: 12,
+      });
+      setBlogs(blogsData.blogs);
+      setHasMore(blogsData.hasMore);
+      setTotalCount(blogsData.totalCount);
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+      toast.error("Failed to load blogs");
+    } finally {
+      setBlogsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (username) {
+      fetchAuthorData();
+    }
+  }, [username]);
+
+  useEffect(() => {
+    if (profile) {
+      fetchBlogs();
+    }
+  }, [profile, sort, time, search]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateQuery("search", searchInput);
+  };
+
+  if (loading) return <ProfilePageSkeleton />;
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Author Not Found</h1>
+          <p className="text-muted-foreground">
+            The author you're looking for doesn't exist.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full">
       {/* Cover Section */}
@@ -108,37 +133,56 @@ export default function AuthorProfilePage() {
         <Card className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <Avatar className="w-20 h-20">
-              <AvatarImage src={author.avatarUrl} alt={author.name} />
-              <AvatarFallback>{author.name[0]}</AvatarFallback>
+              <AvatarImage src={profile.avatar || ""} alt={profile.name} />
+              <AvatarFallback>{profile.name[0]}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-xl font-semibold">{author.name}</h1>
-              <p className="text-muted-foreground text-sm">
-                @{author.username}
-              </p>
-              {author.bio && (
+              <div>
+                <h1 className="text-xl font-semibold">{profile.name}</h1>
+                <p className="text-muted-foreground text-sm">
+                  @{profile.username}
+                </p>
+              </div>
+              {profile.bio && (
                 <p className="mt-1 text-sm text-gray-600 max-w-md">
-                  {author.bio}
+                  {profile.bio}
                 </p>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-2 sm:mt-0">
-            <p className="text-sm text-gray-500">
-              {author.followersCount} followers
-            </p>
-            <Button variant={author.isFollowing ? "outline" : "default"}>
-              {author.isFollowing ? "Unfollow" : "Follow"}
-            </Button>
+          <div className="w-1/2">
+            <div className="flex justify-around gap-4 md:gap-6 lg:gap-10 text-2xl">
+              <div className="text-center">
+                <h1 className="font-bold">{profile.totalPosts}</h1>
+                <p className="text-sm text-gray-500">Total Posts</p>
+              </div>
+              <div className="text-center">
+                <h1 className="font-bold">{profile.totalViews}</h1>
+                <p className="text-sm text-gray-500">Total Reads</p>
+              </div>
+              <div className="text-center">
+                <h1 className="font-bold">{profile.totalFollowers}</h1>
+                <p className="text-sm text-gray-500">Total Followers</p>
+              </div>
+            </div>
+            <div className="px-8">
+              <Button className="mt-6 w-full">Follow</Button>
+            </div>
           </div>
         </Card>
       </div>
 
-      {/* search and filters  */}
+      {/* Search and filters */}
       <div className="max-w-6xl mx-auto flex items-center justify-between my-8 px-4">
-        <div className="space-x-4">
-          <Input type="text" className="bg-white" placeholder="Search Blogs" />
-        </div>
+        <form onSubmit={handleSearch} className="space-x-4">
+          <Input
+            type="text"
+            className="bg-white"
+            placeholder="Search Blogs"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+        </form>
         <div className="flex space-x-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -188,11 +232,28 @@ export default function AuthorProfilePage() {
 
       {/* Blog Section */}
       <div className="max-w-6xl mx-auto px-4">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {blogs.map((blog) => (
-            <BlogCard blog={blog} />
-          ))}
-        </div>
+        {blogsLoading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        ) : blogs.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {blogs.map((blog) => (
+              <BlogCard key={blog.id} blog={blog} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No blogs found
+            </h3>
+            <p className="text-gray-500">
+              {search
+                ? "Try adjusting your search criteria."
+                : "This author hasn't published any blogs yet."}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

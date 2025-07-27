@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Author, Blog } from "@/types";
-import BlogCard from "@/components/blogs/BlogCard";
+import BlogCard from "@/components/common/BlogCard";
 import SectionTitle from "@/components/landing/SectionTitle";
 import {
   CopyIcon,
