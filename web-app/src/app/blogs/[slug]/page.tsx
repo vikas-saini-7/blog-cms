@@ -170,11 +170,15 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
       </div>
 
       {/* Share + Like Buttons */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl">
-        {/* Like Section */}
-        <div className="flex items-center gap-4">
-          <LikeButton />
-          <CommentButton />
+      <div className="flex items-center justify-between gap-6 pb-6 border-b border-border">
+        {/* Interaction Buttons */}
+        <div className="flex items-center gap-3">
+          <LikeButton
+            postId={blog.id}
+            initialLikeCount={blog.likes}
+            isLiked={blog.isLiked || false}
+          />
+          <CommentButton commentCount={blog.comments} />
         </div>
 
         {/* Share Buttons */}

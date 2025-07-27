@@ -7,7 +7,7 @@ import {
   IconLoader2,
 } from "@tabler/icons-react";
 import { motion } from "framer-motion";
-import { toggleBookmark } from "@/actions/bookmark.actions";
+import { toggleBookmark } from "@/actions/user-interactions.actions";
 import { toast } from "sonner";
 
 type Size = "sm" | "md" | "lg";

@@ -213,6 +213,7 @@ export interface BlogDetail {
     slug: string;
   }>;
   isBookmarked: boolean;
+  isLiked: boolean;
 }
 
 export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
@@ -268,6 +269,7 @@ export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
     });
 
     let isBookmarked = false;
+    let isLiked = false;
     const userEmail = session?.user?.email;
 
     if (userEmail) {
@@ -281,7 +283,12 @@ export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
           where: { userId: user.id, postId: post.id },
         });
 
+        const like = await prisma.like.findFirst({
+          where: { userId: user.id, postId: post.id },
+        });
+
         isBookmarked = !!bookmark;
+        isLiked = !!like;
       }
     }
 
@@ -300,6 +307,7 @@ export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
       tags: post.postTags.map((pt) => pt.tag),
       categories: post.postCategories.map((pc) => pc.category),
       isBookmarked,
+      isLiked,
     };
   } catch (error) {
     console.error("Error fetching blog by slug:", error);

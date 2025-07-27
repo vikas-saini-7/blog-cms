@@ -15,7 +15,7 @@ export function ShareButtons() {
       {/* X Button */}
       <Button
         variant="outline"
-        className="flex items-center gap-2 rounded-md px-3 py-2 bg-[#00000008] text-black border border-transparent hover:border-black hover:bg-black hover:text-white transition-all"
+        className="flex items-center gap-2 rounded-md px-3 py-2 bg-white text-black border border-transparent hover:border-black hover:bg-black hover:text-white transition-all"
       >
         <IconBrandX size={16} stroke={2} />
         Post on X
@@ -24,7 +24,7 @@ export function ShareButtons() {
       {/* LinkedIn Button */}
       <Button
         variant="outline"
-        className="flex items-center gap-2 rounded-md px-3 py-2 bg-[#0077B509] text-[#0077B5] border border-transparent hover:border-[#0077B5] hover:bg-[#0077B5] hover:text-white transition-all"
+        className="flex items-center gap-2 rounded-md px-3 py-2 bg-white text-[#0077B5] border border-transparent hover:border-[#0077B5] hover:bg-[#0077B5] hover:text-white transition-all"
       >
         <IconBrandLinkedin size={16} stroke={2} />
         LinkedIn
@@ -33,7 +33,7 @@ export function ShareButtons() {
       {/* Copy Link Button */}
       <Button
         variant="outline"
-        className="flex items-center gap-2 rounded-md px-3 py-2 bg-gray-100 text-gray-600 border border-transparent hover:border-gray-600 hover:bg-white hover:text-black transition-all"
+        className="flex items-center gap-2 rounded-md px-3 py-2 bg-white text-gray-600 border border-transparent hover:border-gray-600 hover:bg-white hover:text-black transition-all"
       >
         <IconCopy size={16} stroke={2} />
         Copy Link

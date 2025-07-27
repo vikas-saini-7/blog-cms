@@ -9,6 +9,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { IconHeartFilled } from "@tabler/icons-react";
 
 interface LikedPost {
   id: string;
@@ -127,7 +128,7 @@ export default function LikesPage() {
                     <span>{post.views}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Heart size={16} />
+                    <IconHeartFilled size={16} className="text-red-500" />
                     <span>{post.likes}</span>
                   </div>
                   <div className="flex items-center gap-1">
