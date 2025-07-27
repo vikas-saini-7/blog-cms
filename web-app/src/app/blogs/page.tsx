@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import BlogCard from "@/components/blogs/BlogCard";
 import { fetchBlogs, getTags } from "@/actions/blog.actions";
+import BlogCardSkeleton from "@/components/skeletons/BlogCardSkeleton";
 
 const SORTS = ["latest", "popular"];
 const TIMES = ["24h", "7d", "30d", "all"];
@@ -263,9 +264,7 @@ export default function BlogsPage() {
 
         {loading &&
           initialLoad &&
-          [...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-xl" />
-          ))}
+          [...Array(4)].map((_, i) => <BlogCardSkeleton key={i} />)}
       </div>
 
       {/* Scroll loading spinner */}
