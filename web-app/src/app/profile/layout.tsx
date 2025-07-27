@@ -13,11 +13,11 @@ import {
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Author, Profile } from "@/types";
+import { Profile } from "@/types";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { toast } from "sonner";
 import ProfilePageSkeleton from "@/components/skeletons/ProfilePageSkeleton";
+import { getProfileData, ProfileData } from "@/actions/profile.actions";
 
 const tabs = [
   { href: "/profile", label: "Profile", icon: IconUser },
@@ -33,12 +33,44 @@ export default function AuthorLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [profile, setProfile] = useState<Profile>();
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // fecth profile data from server action
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const profileData = await getProfileData();
+        if (profileData) {
+          setProfile(profileData);
+        } else {
+          toast.error("Failed to load profile data");
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast.error("Something went wrong while loading profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   if (loading) return <ProfilePageSkeleton />;
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen w-full bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Profile not found</h1>
+          <p className="text-muted-foreground">
+            Please sign in to view your profile.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-background">
@@ -49,32 +81,35 @@ export default function AuthorLayout({
         <Card className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <Avatar className="w-20 h-20">
-              <AvatarImage src={profile?.avatar} alt={profile?.name} />
-              <AvatarFallback>{profile?.name[0]}</AvatarFallback>
+              <AvatarImage
+                src={profile.avatar || undefined}
+                alt={profile.name}
+              />
+              <AvatarFallback>{profile.name?.[0] || "U"}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-xl font-semibold">{profile?.name}</h1>
+              <h1 className="text-xl font-semibold">{profile.name}</h1>
               <p className="text-muted-foreground text-sm">
-                @{profile?.username}
+                @{profile.username || "username"}
               </p>
-              {profile?.bio && (
+              {profile.bio && (
                 <p className="mt-1 text-sm text-gray-600 max-w-md">
-                  {profile?.bio}
+                  {profile.bio}
                 </p>
               )}
             </div>
           </div>
           <div className="flex justify-around gap-4 md:gap-6 lg:gap-10 text-2xl w-1/2">
             <div className="text-center">
-              <h1 className="font-bold">6</h1>
+              <h1 className="font-bold">{profile.stats.totalPosts}</h1>
               <p className="text-sm text-gray-500">Total Posts</p>
             </div>
             <div className="text-center">
-              <h1 className="font-bold">301</h1>
+              <h1 className="font-bold">{profile.stats.totalReads}</h1>
               <p className="text-sm text-gray-500">Total Reads</p>
             </div>
             <div className="text-center">
-              <h1 className="font-bold">26</h1>
+              <h1 className="font-bold">{profile.stats.totalFollowers}</h1>
               <p className="text-sm text-gray-500">Total Followers</p>
             </div>
           </div>

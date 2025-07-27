@@ -1,114 +1,155 @@
 "use client";
 
-import React from "react";
-import {
-  IconMessageCircle,
-  IconCalendar,
-  IconHeartFilled,
-} from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { getProfileData, getUserBookmarks } from "@/actions/profile.actions";
+import { Card } from "@/components/ui/card";
+import { formatDistanceToNow } from "date-fns";
+import { Eye, Heart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { BookmarkButton } from "@/components/blog/BookmarkButton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
 
-type Blog = {
+interface BookmarkedPost {
   id: string;
   title: string;
-  image: string;
-  category: string;
+  description: string | null;
+  slug: string;
+  coverImage: string | null;
+  publishedAt: Date | null;
+  views: number;
   likes: number;
   comments: number;
-  date: string;
-};
+  author: {
+    id: string;
+    name: string;
+    username: string | null;
+    avatar: string | null;
+  };
+}
 
-const bookmarkedBlogs: Blog[] = [
-  {
-    id: "1",
-    title: "React Server Components Explained",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-    category: "Frontend",
-    likes: 75,
-    comments: 21,
-    date: "July 12, 2025",
-  },
-  {
-    id: "2",
-    title: "A Guide to Tailwind CSS Best Practices",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-    category: "Design",
-    likes: 42,
-    comments: 7,
-    date: "June 28, 2025",
-  },
-];
+export default function BookmarksPage() {
+  const [bookmarks, setBookmarks] = useState<BookmarkedPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function Page() {
-  return (
-    <section className="p-4 md:p-6 max-w-4xl mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Your Bookmarks</h2>
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      try {
+        setLoading(true);
+        const profileData = await getProfileData();
+        if (profileData) {
+          const userBookmarks = await getUserBookmarks(profileData.id);
+          setBookmarks(userBookmarks);
+        } else {
+          toast.error("Failed to load profile data");
+        }
+      } catch (error) {
+        console.error("Error fetching bookmarks:", error);
+        toast.error("Something went wrong while loading bookmarks");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      {bookmarkedBlogs.length === 0 ? (
+    fetchBookmarks();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} className="p-6 animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (bookmarks.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-xl font-semibold mb-2">No bookmarks yet</h2>
         <p className="text-muted-foreground">
-          You haven’t bookmarked any blogs yet.
+          You haven't bookmarked any posts yet. Start bookmarking posts to see
+          them here!
         </p>
-      ) : (
-        <div className="space-y-6">
-          {bookmarkedBlogs.map((blog) => (
-            <Link
-              key={blog.id}
-              href={`/blogs/${blog.id}`}
-              className="block group relative"
-            >
-              <div className="flex gap-4 rounded-xl border shadow-sm hover:shadow-md transition p-4 bg-white dark:bg-zinc-900">
-                {/* Image */}
-                <div className="aspect-[16/9] w-32 h-auto relative rounded-md overflow-hidden">
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Bookmarks</h1>
+        <p className="text-muted-foreground">
+          {bookmarks.length} bookmarked posts
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {bookmarks.map((post) => (
+          <Card key={post.id} className="p-6 hover:shadow-md transition-shadow">
+            <div className="flex gap-4">
+              {post.coverImage && (
+                <div className="flex-shrink-0">
                   <Image
-                    src={blog.image}
-                    alt={blog.title}
-                    fill
-                    className="object-cover"
+                    src={post.coverImage}
+                    alt={post.title}
+                    width={120}
+                    height={80}
+                    className="rounded-lg object-cover"
                   />
                 </div>
-
-                {/* Blog Content */}
-                <div className="flex-1">
-                  <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wider">
-                    {blog.category}
+              )}
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Avatar className="w-6 h-6">
+                    <AvatarImage src={post.author.avatar || undefined} />
+                    <AvatarFallback>{post.author.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm text-muted-foreground">
+                    {post.author.name}
+                  </span>
+                </div>
+                <Link
+                  href={`/posts/${post.slug}`}
+                  className="hover:text-primary"
+                >
+                  <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
+                </Link>
+                {post.description && (
+                  <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                    {post.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Eye size={16} />
+                    <span>{post.views}</span>
                   </div>
-                  <h2 className="text-lg font-semibold group-hover:underline font-heading">
-                    {blog.title}
-                  </h2>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <IconHeartFilled className="text-red-500" size={16} />{" "}
-                      {blog.likes}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <IconMessageCircle size={16} />
-                      {blog.comments}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <IconCalendar size={16} />
-                      {blog.date}
-                    </span>
+                  <div className="flex items-center gap-1">
+                    <Heart size={16} />
+                    <span>{post.likes}</span>
                   </div>
+                  <div className="flex items-center gap-1">
+                    <MessageCircle size={16} />
+                    <span>{post.comments}</span>
+                  </div>
+                  {post.publishedAt && (
+                    <span>
+                      {formatDistanceToNow(new Date(post.publishedAt), {
+                        addSuffix: true,
+                      })}
+                    </span>
+                  )}
                 </div>
               </div>
-
-              {/* Bookmark Button */}
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-              >
-                <BookmarkButton size="sm" />
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </section>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }

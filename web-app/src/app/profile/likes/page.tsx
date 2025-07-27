@@ -1,98 +1,152 @@
 "use client";
 
-import React from "react";
-import {
-  IconHeart,
-  IconMessageCircle,
-  IconCalendar,
-  IconHeartFilled,
-} from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { getProfileData, getUserLikes } from "@/actions/profile.actions";
+import { Card } from "@/components/ui/card";
+import { formatDistanceToNow } from "date-fns";
+import { Eye, Heart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
 
-type Blog = {
+interface LikedPost {
   id: string;
   title: string;
-  image: string;
-  category: string;
+  description: string | null;
+  slug: string;
+  coverImage: string | null;
+  publishedAt: Date | null;
+  views: number;
   likes: number;
   comments: number;
-  date: string;
-};
+  author: {
+    id: string;
+    name: string;
+    username: string | null;
+    avatar: string | null;
+  };
+}
 
-const likedBlogs: Blog[] = [
-  {
-    id: "1",
-    title: "Next.js 14 Release: Everything You Need to Know",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-    category: "Web Dev",
-    likes: 122,
-    comments: 34,
-    date: "July 20, 2025",
-  },
-  {
-    id: "2",
-    title: "Understanding Prisma with PostgreSQL",
-    image:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-    category: "Backend",
-    likes: 89,
-    comments: 12,
-    date: "July 15, 2025",
-  },
-];
+export default function LikesPage() {
+  const [likes, setLikes] = useState<LikedPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const LikesPage = () => {
-  return (
-    <section className="p-4 md:p-6 max-w-4xl mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Your Likes</h2>
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        setLoading(true);
+        const profileData = await getProfileData();
+        if (profileData) {
+          const userLikes = await getUserLikes(profileData.id);
+          setLikes(userLikes);
+        } else {
+          toast.error("Failed to load profile data");
+        }
+      } catch (error) {
+        console.error("Error fetching likes:", error);
+        toast.error("Something went wrong while loading likes");
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchLikes();
+  }, []);
+
+  if (loading) {
+    return (
       <div className="space-y-6">
-        {likedBlogs.map((blog) => (
-          <Link
-            key={blog.id}
-            href={`/blogs/${blog.id}`}
-            className="block group"
-          >
-            <div className="flex gap-4 rounded-xl border shadow-sm hover:shadow-md transition p-4 bg-white dark:bg-zinc-900">
-              <div className="aspect-[16/9] w-32 h-auto relative rounded-md overflow-hidden">
-                <Image
-                  src={blog.image}
-                  alt={blog.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} className="p-6 animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
-              <div className="flex-1">
-                <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wider">
-                  {blog.category}
+  if (likes.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-xl font-semibold mb-2">No liked posts yet</h2>
+        <p className="text-muted-foreground">
+          You haven't liked any posts yet. Start liking posts to see them here!
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Liked Posts</h1>
+        <p className="text-muted-foreground">{likes.length} liked posts</p>
+      </div>
+
+      <div className="space-y-4">
+        {likes.map((post) => (
+          <Card key={post.id} className="p-6 hover:shadow-md transition-shadow">
+            <div className="flex gap-4">
+              {post.coverImage && (
+                <div className="flex-shrink-0">
+                  <Image
+                    src={post.coverImage}
+                    alt={post.title}
+                    width={120}
+                    height={80}
+                    className="rounded-lg object-cover"
+                  />
                 </div>
-                <h2 className="text-lg font-semibold group-hover:underline font-heading">
-                  {blog.title}
-                </h2>
-                <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <IconHeartFilled size={16} className="text-red-500" />
-                    {blog.likes}
+              )}
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Avatar className="w-6 h-6">
+                    <AvatarImage src={post.author.avatar || undefined} />
+                    <AvatarFallback>{post.author.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm text-muted-foreground">
+                    {post.author.name}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <IconMessageCircle size={16} />
-                    {blog.comments}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <IconCalendar size={16} />
-                    {blog.date}
-                  </span>
+                </div>
+                <Link
+                  href={`/posts/${post.slug}`}
+                  className="hover:text-primary"
+                >
+                  <h3 className="text-lg font-semibold mb-2">{post.title}</h3>
+                </Link>
+                {post.description && (
+                  <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                    {post.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Eye size={16} />
+                    <span>{post.views}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Heart size={16} />
+                    <span>{post.likes}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MessageCircle size={16} />
+                    <span>{post.comments}</span>
+                  </div>
+                  {post.publishedAt && (
+                    <span>
+                      {formatDistanceToNow(new Date(post.publishedAt), {
+                        addSuffix: true,
+                      })}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
-          </Link>
+          </Card>
         ))}
       </div>
-    </section>
+    </div>
   );
-};
-
-export default LikesPage;
+}
