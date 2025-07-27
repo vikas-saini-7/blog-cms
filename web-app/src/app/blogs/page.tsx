@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import axios from "axios";
 import { Loader2, CalendarClock, Flame } from "lucide-react";
 import { Blog } from "@/types";
 import { cn } from "@/lib/utils";
@@ -15,8 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import BlogCard from "@/components/blogs/BlogCard";
+import { fetchBlogs, getTags } from "@/actions/blog.actions";
 
-const TAGS = ["tech", "design", "entertainment", "health", "politics"];
 const SORTS = ["latest", "popular"];
 const TIMES = ["24h", "7d", "30d", "all"];
 
@@ -27,7 +26,7 @@ const INITIAL_BLOGS: Blog[] = [
     title: "Exploring Modern Frontend Frameworks",
     description: "A deep dive into React, Vue, Svelte and more...",
     slug: "modern-frontend-frameworks",
-    image:
+    coverImage:
       "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
     category: "tech",
     likes: 120,
@@ -39,7 +38,7 @@ const INITIAL_BLOGS: Blog[] = [
     description:
       "How AI and wearables are shaping the future of personal health.",
     slug: "future-health-tech",
-    image:
+    coverImage:
       "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
     category: "health",
     likes: 98,
@@ -51,7 +50,7 @@ const INITIAL_BLOGS: Blog[] = [
     description:
       "Learn how to apply minimalism to your UI for a better user experience.",
     slug: "minimal-design-principles",
-    image:
+    coverImage:
       "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
     category: "design",
     likes: 76,
@@ -63,7 +62,7 @@ const INITIAL_BLOGS: Blog[] = [
     description:
       "Learn how to apply minimalism to your UI for a better user experience.",
     slug: "minimal-design-principles",
-    image:
+    coverImage:
       "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
     category: "design",
     likes: 76,
@@ -79,7 +78,10 @@ export default function BlogsPage() {
   const sort = searchParams.get("sort") ?? "latest";
   const time = searchParams.get("time") ?? "all";
 
-  const [blogs, setBlogs] = useState<Blog[]>(INITIAL_BLOGS);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [tags, setTags] = useState<
+    Array<{ id: string; name: string; slug: string }>
+  >([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -87,32 +89,62 @@ export default function BlogsPage() {
 
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchBlogs = useCallback(
-    async (pageNum: number) => {
+  // Fetch blogs using server action
+  const loadBlogs = useCallback(
+    async (pageNum: number = 1, reset: boolean = false) => {
+      if (loading) return;
+
       setLoading(true);
       try {
-        const res = await axios.get("/api/blogs", {
-          params: { page: pageNum, tag, sort, time },
+        const response = await fetchBlogs({
+          tag: tag || undefined,
+          sort: sort as "latest" | "popular",
+          time: time as "24h" | "7d" | "30d" | "all",
+          page: pageNum,
+          limit: 12,
         });
-        const data = res.data;
-        setBlogs((prev) =>
-          pageNum === 1 ? data.blogs : [...prev, ...data.blogs]
-        );
-        setHasMore(data.hasMore);
+
+        if (reset) {
+          setBlogs(response.blogs);
+          console.log(response.blogs);
+        } else {
+          setBlogs((prev) => [...prev, ...response.blogs]);
+        }
+
+        setHasMore(response.hasMore);
+        setPage(pageNum);
       } catch (error) {
-        console.error("Failed to fetch blogs:", error);
+        console.error("Error fetching blogs:", error);
       } finally {
         setLoading(false);
         setInitialLoad(false);
       }
     },
-    [tag, sort, time]
+    [tag, sort, time, loading]
   );
 
+  // Load tags on component mount
+  useEffect(() => {
+    const loadTags = async () => {
+      try {
+        const tagsData = await getTags();
+        setTags(tagsData);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
+
+    loadTags();
+  }, []);
+
+  // Load blogs when filters change
   useEffect(() => {
     setPage(1);
-    fetchBlogs(1);
-  }, [tag, sort, time, fetchBlogs]);
+    setBlogs([]);
+    setHasMore(true);
+    setInitialLoad(true);
+    loadBlogs(1, true);
+  }, [tag, sort, time]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -125,8 +157,7 @@ export default function BlogsPage() {
 
         if (nearBottom && !loading && hasMore) {
           const nextPage = page + 1;
-          setPage(nextPage);
-          fetchBlogs(nextPage);
+          loadBlogs(nextPage);
         }
 
         scrollTimeout.current = null;
@@ -135,7 +166,7 @@ export default function BlogsPage() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading, hasMore, page, fetchBlogs]);
+  }, [loading, hasMore, page, loadBlogs]);
 
   const updateQuery = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -154,16 +185,16 @@ export default function BlogsPage() {
 
       <div className="flex items-center justify-between">
         <div className="space-x-4">
-          {TAGS.map((t) => {
-            const isActive = tag === t;
+          {tags.map((t) => {
+            const isActive = tag === t.slug;
             return (
               <Button
-                key={t}
+                key={t.id}
                 variant={isActive ? "default" : "outline"}
                 className="text-sm rounded-full"
-                onClick={() => updateQuery("tag", t)}
+                onClick={() => updateQuery("tag", t.slug)}
               >
-                #{t}
+                #{t.name}
               </Button>
             );
           })}

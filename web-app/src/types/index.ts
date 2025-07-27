@@ -1,20 +1,27 @@
 export interface Blog {
   id: string;
   title: string;
-  description: string;
-  image: string;
+  description: string | null;
+  coverImage: string | null;
   slug: string;
-
-  category?: "tech" | "design" | "entertainment" | "health" | "politics";
+  publishedAt?: Date | null;
+  views?: number;
+  category?: string;
   likes?: number;
   comments?: number;
+  author?: {
+    id: string;
+    name: string;
+    username: string | null;
+    avatar: string | null;
+  };
 }
 
 export interface Author {
-  username: string;
+  username: string | null;
   name: string;
-  avatar: string;
-  bio?: string;
+  avatar: string | null;
+  bio?: string | null;
   isProfilePublic: boolean;
   followersCount: number;
   isFollowing: boolean;

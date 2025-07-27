@@ -27,7 +27,7 @@ const AuthorCard: React.FC<AuthorCardProps> = ({ author, rank }) => {
       {/* Avatar */}
       <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 border">
         <Image
-          src={author.avatarUrl}
+          src={author.avatar as string}
           alt={author.name}
           fill
           className="object-cover"

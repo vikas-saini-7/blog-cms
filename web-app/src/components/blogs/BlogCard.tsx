@@ -2,18 +2,17 @@ import { Blog } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, Heart } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export default function BlogCard({ blog }: { blog: Blog }) {
   return (
     <Link
-      href={`/blogs/${blog?.slug ?? "#"}`}
+      href={`/blogs/${blog?.slug}`}
       className="group rounded-xl overflow-hidden shadow-sm border bg-white dark:bg-muted hover:shadow-md transition flex flex-col font-heading"
       aria-label={blog?.title}
     >
       <div className="relative w-full aspect-video overflow-hidden rounded-xl">
         <Image
-          src={blog?.image || "/placeholder.webp"}
+          src={blog?.coverImage || "/placeholder.webp"}
           alt={blog?.title || "Blog cover image"}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
