@@ -2,6 +2,7 @@
 
 import { PostStatus, PrismaClient } from "@/generated/prisma";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
+import { getServerSession } from "next-auth";
 const prisma = new PrismaClient();
 
 export interface BlogFilters {
@@ -211,10 +212,17 @@ export interface BlogDetail {
     name: string;
     slug: string;
   }>;
+  isBookmarked: boolean;
 }
 
 export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return null;
+    }
+
     const post = await prisma.post.findUnique({
       where: {
         slug,
@@ -259,6 +267,24 @@ export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
       data: { views: { increment: 1 } },
     });
 
+    let isBookmarked = false;
+    const userEmail = session?.user?.email;
+
+    if (userEmail) {
+      const user = await prisma.user.findUnique({
+        where: { email: userEmail },
+        select: { id: true },
+      });
+
+      if (user) {
+        const bookmark = await prisma.bookmark.findFirst({
+          where: { userId: user.id, postId: post.id },
+        });
+
+        isBookmarked = !!bookmark;
+      }
+    }
+
     return {
       id: post.id,
       title: post.title,
@@ -273,6 +299,7 @@ export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
       author: post.author,
       tags: post.postTags.map((pt) => pt.tag),
       categories: post.postCategories.map((pc) => pc.category),
+      isBookmarked,
     };
   } catch (error) {
     console.error("Error fetching blog by slug:", error);

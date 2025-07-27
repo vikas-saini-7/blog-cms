@@ -32,7 +32,7 @@ interface BlogDetailPageProps {
 export async function generateMetadata({
   params,
 }: BlogDetailPageProps): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
   const blog = await getBlogBySlug(slug);
 
   if (!blog) {
@@ -121,7 +121,12 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
             fill
             className="object-cover"
           />
-          <BookmarkButton size="md" />
+          <BookmarkButton
+            size="md"
+            postId={blog.id}
+            // userId={userId}
+            isBookmarked={blog.isBookmarked}
+          />
         </div>
       )}
 

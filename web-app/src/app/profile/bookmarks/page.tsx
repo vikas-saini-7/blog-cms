@@ -9,6 +9,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { BookmarkButton } from "@/components/blog/BookmarkButton";
 
 interface BookmarkedPost {
   id: string;
@@ -90,7 +91,20 @@ export default function BookmarksPage() {
 
       <div className="space-y-4">
         {bookmarks.map((post) => (
-          <Card key={post.id} className="p-6 hover:shadow-md transition-shadow">
+          <Card
+            key={post.id}
+            className="relative p-6 hover:shadow-md transition-shadow"
+          >
+            <BookmarkButton
+              postId={post.id}
+              isBookmarked={true}
+              size="sm"
+              onToggle={(newState) => {
+                if (!newState) {
+                  setBookmarks((prev) => prev.filter((p) => p.id !== post.id));
+                }
+              }}
+            />
             <div className="flex gap-4">
               {post.coverImage && (
                 <div className="flex-shrink-0">
