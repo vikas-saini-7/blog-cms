@@ -36,25 +36,7 @@ export default function AuthorLayout({
   const [profile, setProfile] = useState<Profile>();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get("/api/profile");
-        console.log(res);
-        if (res.status == 200) {
-          setProfile(res.data.user);
-        } else {
-          toast.error("Error fetching profile");
-        }
-      } catch (error) {
-        console.error("Error fetching profile", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
+  // fecth profile data from server action
 
   if (loading) return <ProfilePageSkeleton />;
 
