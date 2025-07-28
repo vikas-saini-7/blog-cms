@@ -53,7 +53,7 @@ export default function PostsPage() {
             description: b.description,
             image: b.coverImage || "",
             slug: b.slug,
-            category: "tech",
+            views: b.views,
             likes: b.likes ?? 0,
             comments: 0,
             status: b.status === "DRAFT" ? "draft" : "published",
@@ -123,7 +123,7 @@ export default function PostsPage() {
               <TableRow>
                 <TableHead>Image</TableHead>
                 <TableHead>Title</TableHead>
-                <TableHead>Category</TableHead>
+                <TableHead>Reads</TableHead>
                 <TableHead>Likes</TableHead>
                 <TableHead>Comments</TableHead>
                 <TableHead>Status</TableHead>
@@ -143,7 +143,7 @@ export default function PostsPage() {
                     />
                   </TableCell>
                   <TableCell className="font-medium">{blog.title}</TableCell>
-                  <TableCell className="capitalize">{blog.category}</TableCell>
+                  <TableCell className="capitalize">{blog.views}</TableCell>
                   <TableCell>{blog.likes}</TableCell>
                   <TableCell>{blog.comments}</TableCell>
                   <TableCell>

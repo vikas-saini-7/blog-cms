@@ -4,6 +4,7 @@ export interface Blog {
   description: string;
   image: string;
   slug: string;
+  views: number;
 
   category?: "tech" | "design" | "entertainment" | "health" | "politics";
   likes?: number;

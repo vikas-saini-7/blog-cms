@@ -168,8 +168,8 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blogId }) => {
   return (
     <div className="flex w-full">
       {loading ? (
-        <div className="w-full h-screen flex items-center justify-center">
-          <p className="text-muted-foreground text-xl">Loading...</p>
+        <div className="w-full h-[calc(100vh-61px)] flex items-center justify-center">
+          <p className="text-muted-foreground text-sm">Loading...</p>
         </div>
       ) : (
         <>
