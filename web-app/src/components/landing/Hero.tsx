@@ -6,8 +6,8 @@ const Hero = () => {
     <div className="h-[calc(100vh-80px)] flex container mx-auto items-center pb-20">
       <div className="space-y-4 md:w-[90%] lg:w-[80%] mx-auto">
         <h1 className="font-heading text-7xl font-bold">
-          Start Sharing, <br />
-          your thoughts
+          Read, Write, <br />
+          Share thoughts
         </h1>
         <h1 className="text-2xl text-gray-500">
           Read insightful blogs, write your own stories, <br />
