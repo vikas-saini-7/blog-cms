@@ -1,10 +1,9 @@
 "use server";
 
-import { PrismaClient } from "@/generated/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 
 export interface ProfileData {
   id: string;

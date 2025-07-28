@@ -1,8 +1,7 @@
 "use server";
 
-import { PrismaClient, PostStatus } from "@/generated/prisma";
-
-const prisma = new PrismaClient();
+import { PostStatus } from "@/generated/prisma";
+import { prisma } from "@/lib/prisma";
 
 export interface AuthorProfile {
   id: string;

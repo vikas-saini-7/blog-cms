@@ -1,9 +1,9 @@
 "use server";
 
-import { PostStatus, PrismaClient } from "@/generated/prisma";
+import { PostStatus } from "@/generated/prisma";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 import { getServerSession } from "next-auth";
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export interface BlogFilters {
   tag?: string;

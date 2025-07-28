@@ -1,12 +1,11 @@
 "use server";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
-import { PostStatus, PrismaClient } from "@/generated/prisma";
+import { PostStatus } from "@/generated/prisma";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
-
-const prisma = new PrismaClient();
 
 function generateUniqueSlug(baseSlug: string, index?: number) {
   return index ? `${baseSlug}-${index}` : baseSlug;
@@ -85,7 +84,7 @@ export async function getBlogById(blogId: string) {
     if (!blog) {
       return { success: false, message: "Blog not found" };
     }
-    console.log(blog);
+    // console.log(blog);
 
     return { success: true, blog };
   } catch (error) {
@@ -177,7 +176,6 @@ export async function getUserBlogs() {
         createdAt: "desc",
       },
     });
-    
 
     return { success: true, blogs };
   } catch (error) {
