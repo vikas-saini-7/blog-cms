@@ -17,16 +17,19 @@ import {
   AuthorBlog,
   AuthorProfile,
 } from "@/actions/author.actions";
+import { toggleFollow } from "@/actions/user-interactions.actions";
 import { CalendarClock, Flame } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const SORTS = ["latest", "popular"];
 const TIMES = ["24h", "7d", "30d", "all"];
 
 export default function AuthorProfilePage() {
+  const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { username } = useParams();
@@ -42,6 +45,7 @@ export default function AuthorProfilePage() {
   const [searchInput, setSearchInput] = useState(search);
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
 
   const updateQuery = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -108,6 +112,45 @@ export default function AuthorProfilePage() {
     updateQuery("search", searchInput);
   };
 
+  const handleFollowToggle = async () => {
+    if (!profile || !session?.user) {
+      toast.error("Please login to follow authors");
+      return;
+    }
+
+    setIsFollowLoading(true);
+    try {
+      const result = await toggleFollow(profile.id);
+
+      if (result.success) {
+        setProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                isFollowing: result.isFollowing,
+                totalFollowers: result.isFollowing
+                  ? prev.totalFollowers + 1
+                  : prev.totalFollowers - 1,
+              }
+            : null
+        );
+
+        toast.success(
+          result.isFollowing
+            ? `You are now following ${profile.name}`
+            : `You unfollowed ${profile.name}`
+        );
+      } else {
+        toast.error(result.error || "Failed to update follow status");
+      }
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+      toast.error("Failed to update follow status");
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
   if (loading) return <ProfilePageSkeleton />;
 
   if (!profile) {
@@ -165,9 +208,27 @@ export default function AuthorProfilePage() {
                 <p className="text-sm text-gray-500">Total Followers</p>
               </div>
             </div>
-            <div className="px-8">
-              <Button className="mt-6 w-full">Follow</Button>
-            </div>
+            {!profile.isOwnProfile && (
+              <div className="px-8">
+                <Button
+                  className="mt-6 w-full"
+                  onClick={handleFollowToggle}
+                  disabled={isFollowLoading || status === "loading"}
+                  variant={profile.isFollowing ? "outline" : "default"}
+                >
+                  {isFollowLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                      {profile.isFollowing ? "Unfollowing..." : "Following..."}
+                    </div>
+                  ) : profile.isFollowing ? (
+                    "Unfollow"
+                  ) : (
+                    "Follow"
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
         </Card>
       </div>

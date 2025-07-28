@@ -57,3 +57,42 @@ export async function toggleLike(postId: string) {
   // Optional: revalidate to show updated state
   //   revalidatePath(`/blog/${postId}`);
 }
+
+export async function toggleFollow(targetUserId: string) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  if (session.user.id === targetUserId) {
+    return { success: false, error: "Cannot follow yourself" };
+  }
+
+  try {
+    const existing = await prisma.userFollower.findFirst({
+      where: {
+        followerId: session.user.id,
+        followingId: targetUserId,
+      },
+    });
+
+    if (existing) {
+      await prisma.userFollower.delete({
+        where: { id: existing.id },
+      });
+      return { success: true, isFollowing: false };
+    } else {
+      await prisma.userFollower.create({
+        data: {
+          followerId: session.user.id,
+          followingId: targetUserId,
+        },
+      });
+      return { success: true, isFollowing: true };
+    }
+  } catch (error) {
+    console.error("Error toggling follow:", error);
+    return { success: false, error: "Failed to toggle follow" };
+  }
+}

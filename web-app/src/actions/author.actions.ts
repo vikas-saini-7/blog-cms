@@ -2,6 +2,8 @@
 
 import { PostStatus } from "@/generated/prisma";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
 
 export interface AuthorProfile {
   id: string;
@@ -13,6 +15,8 @@ export interface AuthorProfile {
   totalPosts: number;
   totalViews: number;
   totalFollowers: number;
+  isFollowing?: boolean;
+  isOwnProfile?: boolean;
 }
 
 export interface AuthorBlog {
@@ -45,6 +49,8 @@ export async function getAuthorProfile(
   username: string
 ): Promise<AuthorProfile | null> {
   try {
+    const session = await getServerSession(authOptions);
+
     const author = await prisma.user.findUnique({
       where: { username },
       include: {
@@ -76,6 +82,24 @@ export async function getAuthorProfile(
       },
     });
 
+    // Check if current user is following this author
+    let isFollowing = false;
+    let isOwnProfile = false;
+
+    if (session?.user?.id) {
+      isOwnProfile = session.user.id === author.id;
+
+      if (!isOwnProfile) {
+        const followRecord = await prisma.userFollower.findFirst({
+          where: {
+            followerId: session.user.id,
+            followingId: author.id,
+          },
+        });
+        isFollowing = !!followRecord;
+      }
+    }
+
     return {
       id: author.id,
       name: author.name,
@@ -86,6 +110,8 @@ export async function getAuthorProfile(
       totalPosts: author._count.posts,
       totalViews: totalViews._sum.views || 0,
       totalFollowers: author._count.followers,
+      isFollowing,
+      isOwnProfile,
     };
   } catch (error) {
     console.error("Error fetching author profile:", error);
