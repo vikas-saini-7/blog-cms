@@ -1,18 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Author, Blog } from "@/types";
 import BlogCard from "@/components/common/BlogCard";
 import SectionTitle from "@/components/landing/SectionTitle";
-import {
-  CopyIcon,
-  LinkedinIcon,
-  RectangleVerticalIcon,
-  TwitterIcon,
-} from "lucide-react";
 import { LikeButton } from "@/components/blog/LikeButton";
 import { ShareButtons } from "@/components/blog/ShareButtons";
 import { CommentButton } from "@/components/blog/CommentButton";
@@ -21,6 +12,7 @@ import AddComment from "@/components/blog/AddComment";
 import AuthorCard from "@/components/authors/AuthorCard";
 import { BookmarkButton } from "@/components/blog/BookmarkButton";
 import { getBlogBySlug, getRelatedBlogs } from "@/actions/blog.actions";
+import "./blog-content.css";
 
 interface BlogDetailPageProps {
   params: {
@@ -142,22 +134,36 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
         </div>
       </div>
 
-      {/* Tags */}
-      {blog.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {blog.tags.map((tag) => (
-            <span
-              key={tag.id}
-              className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full"
-            >
-              #{tag.name}
-            </span>
-          ))}
-        </div>
-      )}
+      <div className="flex items-center flex-wrap gap-2">
+        {/* Tags */}
+        {blog.categories.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {blog.categories.map((tag) => (
+              <span
+                key={tag.id}
+                className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full"
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
+        {blog.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {blog.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="px-3 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full"
+              >
+                #{tag.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Content */}
-      <div className="prose dark:prose-invert max-w-none">
+      <div className="blog-content max-w-none">
         <div dangerouslySetInnerHTML={{ __html: blog.content }} />
       </div>
 
