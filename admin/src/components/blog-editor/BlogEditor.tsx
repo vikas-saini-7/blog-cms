@@ -1,7 +1,5 @@
 "use client";
 
-import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -14,6 +12,8 @@ import { toast } from "sonner";
 import { createBlog, updateBlog, getBlogById } from "@/actions/blog.actions";
 import { useRouter } from "next/navigation";
 import { uploadBlogCover } from "@/utils/uploadFile";
+import { getAllCategories } from "@/actions/category.actions";
+import CategoriesInput from "./CategoriesInput";
 
 interface BlogEditorProps {
   blogId?: string;
@@ -28,6 +28,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blogId }) => {
   const [coverUrl, setCoverUrl] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [content, setContent] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
 
   // Load blog details on mount
   useEffect(() => {
@@ -40,9 +41,10 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blogId }) => {
         const blog = res.blog;
         setTitle(blog.title);
         setContent(blog.content);
-        // setTags(blog.tags || []);
+        setTags(blog.tags || []);
         setCoverUrl(blog.coverImage || "");
         setContent(blog.content);
+        setCategories(blog.categories || []);
       } else {
         toast.error(res.message || "Failed to fetch blog");
       }
@@ -52,18 +54,32 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blogId }) => {
     fetchBlog();
   }, [blogId]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      const res = await getAllCategories();
+      if (res.success) {
+      } else {
+        toast.error(res.message || "Failed to fetch categories");
+      }
+      setLoading(false);
+    };
+
+    fetchCategories();
+  }, []);
+
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setCoverImage(file); // optional if you still want to keep the file
+    setCoverImage(file);
 
     try {
       const blogId =
         title.trim().toLowerCase().replace(/\s+/g, "-") ||
         Date.now().toString();
       const uploadedUrl = await uploadBlogCover(file, blogId);
-      setCoverUrl(uploadedUrl); // instantly usable!
+      setCoverUrl(uploadedUrl);
       toast.success("Cover image uploaded");
     } catch (error) {
       console.error("Upload failed", error);
@@ -89,6 +105,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blogId }) => {
         status,
         content,
         coverUrl,
+        categories,
       });
 
       if (res.success) {
@@ -121,6 +138,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blogId }) => {
         status,
         content,
         coverUrl,
+        categories,
       });
 
       if (res.success) {
@@ -246,6 +264,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blogId }) => {
               <label className="text-sm font-medium">Tags</label>
               <TagsInput value={tags} onChange={setTags} />
             </div>
+            <CategoriesInput value={categories} onChange={setCategories} />
           </div>
         </>
       )}

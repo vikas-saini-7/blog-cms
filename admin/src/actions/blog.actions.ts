@@ -34,6 +34,7 @@ export async function createBlog(form: {
   tags?: string[];
   coverUrl?: string;
   description?: string;
+  categories?: string[];
 }) {
   try {
     const session = await getServerSession(authOptions);
@@ -58,6 +59,52 @@ export async function createBlog(form: {
       },
     });
 
+    // Handle tags - create if they don't exist
+    if (form.tags && form.tags.length > 0) {
+      await Promise.all(
+        form.tags.map(async (tagName) => {
+          let tag = await prisma.tag.findUnique({
+            where: { name: tagName },
+          });
+
+          if (!tag) {
+            tag = await prisma.tag.create({
+              data: {
+                name: tagName,
+                slug: slugify(tagName, { lower: true, strict: true }),
+              },
+            });
+          }
+
+          return prisma.postTag.create({
+            data: {
+              postId: post.id,
+              tagId: tag.id,
+            },
+          });
+        })
+      );
+    }
+
+    // Handle categories
+    if (form.categories && form.categories.length > 0) {
+      const categoryConnections = await Promise.all(
+        form.categories.map(async (categoryName) => {
+          const category = await prisma.category.findUnique({
+            where: { name: categoryName },
+          });
+          if (category) {
+            return prisma.postCategory.create({
+              data: {
+                postId: post.id,
+                categoryId: category.id,
+              },
+            });
+          }
+        })
+      );
+    }
+
     revalidatePath("/dashboard");
     return { success: true, post };
   } catch (error) {
@@ -79,14 +126,31 @@ export async function getBlogById(blogId: string) {
         id: blogId,
         authorId: session.user.id,
       },
+      include: {
+        postCategories: {
+          include: {
+            category: true,
+          },
+        },
+        postTags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
     });
 
     if (!blog) {
       return { success: false, message: "Blog not found" };
     }
-    // console.log(blog);
 
-    return { success: true, blog };
+    const blogWithCategoriesAndTags = {
+      ...blog,
+      categories: blog.postCategories.map((pc) => pc.category.name),
+      tags: blog.postTags.map((pt) => pt.tag.name),
+    };
+
+    return { success: true, blog: blogWithCategoriesAndTags };
   } catch (error) {
     console.error("getBlogById error:", error);
     return { success: false, message: "Something went wrong" };
@@ -102,6 +166,7 @@ export async function updateBlog(
     tags?: string[];
     coverUrl?: string;
     description?: string;
+    categories?: string[];
   }
 ) {
   try {
@@ -124,12 +189,65 @@ export async function updateBlog(
         slug,
         status:
           form.status === "publish" ? PostStatus.PUBLISHED : PostStatus.DRAFT,
-
         coverImage: form.coverUrl,
         description: form.description || "",
         publishedAt: form.status === "publish" ? new Date() : undefined,
       },
     });
+
+    // Handle tags - remove existing and add new ones
+    await prisma.postTag.deleteMany({
+      where: { postId: blogId },
+    });
+
+    if (form.tags && form.tags.length > 0) {
+      await Promise.all(
+        form.tags.map(async (tagName) => {
+          let tag = await prisma.tag.findUnique({
+            where: { name: tagName },
+          });
+
+          if (!tag) {
+            tag = await prisma.tag.create({
+              data: {
+                name: tagName,
+                slug: slugify(tagName, { lower: true, strict: true }),
+              },
+            });
+          }
+
+          return prisma.postTag.create({
+            data: {
+              postId: blogId,
+              tagId: tag.id,
+            },
+          });
+        })
+      );
+    }
+
+    // Handle categories - remove existing and add new ones
+    await prisma.postCategory.deleteMany({
+      where: { postId: blogId },
+    });
+
+    if (form.categories && form.categories.length > 0) {
+      const categoryConnections = await Promise.all(
+        form.categories.map(async (categoryName) => {
+          const category = await prisma.category.findUnique({
+            where: { name: categoryName },
+          });
+          if (category) {
+            return prisma.postCategory.create({
+              data: {
+                postId: blogId,
+                categoryId: category.id,
+              },
+            });
+          }
+        })
+      );
+    }
 
     revalidatePath(`/blog-editor/${blogId}`);
     return { success: true, post };

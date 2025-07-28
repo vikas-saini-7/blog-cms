@@ -25,7 +25,7 @@ export default async function BlogPreviewPage({ params }: Props) {
           className="object-cover"
         />
       </div>
-      {draft.publishedAt && (
+      {/* {draft.publishedAt && (
         <p className="text-muted-foreground text-sm">
           Posted on{" "}
           {draft.publishedAt.toLocaleString("en-US", {
@@ -37,11 +37,18 @@ export default async function BlogPreviewPage({ params }: Props) {
             hour12: true,
           })}
         </p>
-      )}
+      )} */}
 
-      <p className="text-muted-foreground text-sm">
-        Posted on Month DD, YYYY • 00:00 AM/PM
-      </p>
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
+          Posted on Month DD, YYYY • 00:00 AM/PM
+        </p>
+        <div className="flex items-center gap-4">
+          <span>0 views</span>
+          <span>0 likes</span>
+          <span>0 comments</span>
+        </div>
+      </div>
 
       <div
         className="prose dark:prose-invert max-w-none"
