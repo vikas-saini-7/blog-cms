@@ -31,6 +31,7 @@ export const authOptions: AuthOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
+          isOnboarded: user.isOnboarded || false,
         };
       },
     }),

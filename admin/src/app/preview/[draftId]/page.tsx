@@ -4,11 +4,12 @@ import { getDraftById } from "@/actions/blog.actions";
 import "./blog-content.css";
 
 type Props = {
-  params: { draftId: string };
+  params: Promise<{ draftId: string }>;
 };
 
 export default async function BlogPreviewPage({ params }: Props) {
-  const draft = await getDraftById(params.draftId);
+  const { draftId } = await params;
+  const draft = await getDraftById(draftId);
 
   if (!draft) return notFound();
 
@@ -52,7 +53,7 @@ export default async function BlogPreviewPage({ params }: Props) {
       </div>
 
       <div
-        className="prose dark:prose-invert max-w-none"
+        className="blog-content max-w-none"
         dangerouslySetInnerHTML={{ __html: draft.content }}
       />
 
