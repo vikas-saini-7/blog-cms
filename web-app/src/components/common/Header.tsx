@@ -36,7 +36,7 @@ export default function SiteHeader() {
           href="/"
           className="text-xl font-bold text-orange-500 font-heading"
         >
-          BLOG CMS
+          PLUMA WEB
         </Link>
 
         <nav className="hidden md:flex space-x-6 text-md font-medium items-center">
