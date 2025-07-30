@@ -21,14 +21,14 @@ import { toggleFollow } from "@/actions/user-interactions.actions";
 import { CalendarClock, Flame } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 
 const SORTS = ["latest", "popular"];
 const TIMES = ["24h", "7d", "30d", "all"];
 
-export default function AuthorProfilePage() {
+function AuthorProfileContent() {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -317,5 +317,13 @@ export default function AuthorProfilePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AuthorProfilePage() {
+  return (
+    <Suspense fallback={<ProfilePageSkeleton />}>
+      <AuthorProfileContent />
+    </Suspense>
   );
 }

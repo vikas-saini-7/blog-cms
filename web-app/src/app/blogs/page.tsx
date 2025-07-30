@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  Suspense,
+} from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2, CalendarClock, Flame } from "lucide-react";
 import { Blog } from "@/types";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,58 +24,7 @@ import BlogCardSkeleton from "@/components/skeletons/BlogCardSkeleton";
 const SORTS = ["latest", "popular"];
 const TIMES = ["24h", "7d", "30d", "all"];
 
-// 👇 Optional initial fallback
-const INITIAL_BLOGS: Blog[] = [
-  {
-    id: "1",
-    title: "Exploring Modern Frontend Frameworks",
-    description: "A deep dive into React, Vue, Svelte and more...",
-    slug: "modern-frontend-frameworks",
-    coverImage:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-    category: "tech",
-    likes: 120,
-    comments: 34,
-  },
-  {
-    id: "2",
-    title: "The Future of Health Tech",
-    description:
-      "How AI and wearables are shaping the future of personal health.",
-    slug: "future-health-tech",
-    coverImage:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-    category: "health",
-    likes: 98,
-    comments: 21,
-  },
-  {
-    id: "3",
-    title: "Minimal Design Principles",
-    description:
-      "Learn how to apply minimalism to your UI for a better user experience.",
-    slug: "minimal-design-principles",
-    coverImage:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-    category: "design",
-    likes: 76,
-    comments: 11,
-  },
-  {
-    id: "4",
-    title: "Minimal Design Principles",
-    description:
-      "Learn how to apply minimalism to your UI for a better user experience.",
-    slug: "minimal-design-principles",
-    coverImage:
-      "https://cdn.prod.website-files.com/6718da5ecf694c9af0e8d5d7/67487fcf3b716cd0bc6d3f00_blog_cover_23.webp",
-    category: "design",
-    likes: 76,
-    comments: 11,
-  },
-];
-
-export default function BlogsPage() {
+function BlogsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -280,5 +233,28 @@ export default function BlogsPage() {
         </p>
       )}
     </div>
+  );
+}
+
+export default function BlogsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-10 space-y-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <h1 className="text-3xl sm:text-4xl font-bold text-center font-heading">
+              Blog Feed
+            </h1>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <BlogCardSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <BlogsContent />
+    </Suspense>
   );
 }

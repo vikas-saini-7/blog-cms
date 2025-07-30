@@ -15,9 +15,9 @@ import { getBlogBySlug, getRelatedBlogs } from "@/actions/blog.actions";
 import "./blog-content.css";
 
 interface BlogDetailPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // Generate metadata for SEO
@@ -57,11 +57,6 @@ export async function generateMetadata({
   };
 }
 
-interface BlogDetailPageProps {
-  params: {
-    slug: string;
-  };
-}
 
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params;

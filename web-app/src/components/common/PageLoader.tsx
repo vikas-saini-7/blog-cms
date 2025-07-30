@@ -15,7 +15,7 @@ NProgress.configure({
 
 export default function PageLoader() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
 
   useEffect(() => {
     NProgress.start();
@@ -27,7 +27,7 @@ export default function PageLoader() {
     return () => {
       clearTimeout(timeout);
     };
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   return null;
 }
