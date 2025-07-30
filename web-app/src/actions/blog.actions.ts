@@ -662,3 +662,282 @@ export async function getTrendingTags(limit: number = 6) {
     return [];
   }
 }
+
+export interface TopBlog {
+  id: string;
+  title: string;
+  description: string | null;
+  slug: string;
+  coverImage: string | null;
+  publishedAt: Date | null;
+  views: number;
+  likes: number;
+  comments: number;
+  category: string;
+  author: {
+    id: string;
+    name: string;
+    username: string | null;
+    avatar: string | null;
+  };
+}
+
+export async function getTopBlogsByCategory(
+  categorySlug: string = "all",
+  limit: number = 10
+): Promise<TopBlog[]> {
+  try {
+    let whereClause: any = {
+      status: PostStatus.PUBLISHED,
+    };
+
+    // If not "all", filter by specific category
+    if (categorySlug !== "all") {
+      if (categorySlug === "likes") {
+        // Sort by most liked, no category filter
+        whereClause = {
+          status: PostStatus.PUBLISHED,
+        };
+      } else if (categorySlug === "comments") {
+        // Sort by most commented, no category filter
+        whereClause = {
+          status: PostStatus.PUBLISHED,
+        };
+      } else {
+        // Filter by specific category
+        whereClause.postCategories = {
+          some: {
+            category: {
+              slug: categorySlug,
+            },
+          },
+        };
+      }
+    }
+
+    let orderBy: any;
+    if (categorySlug === "likes") {
+      orderBy = [{ likes: { _count: "desc" } }, { views: "desc" }];
+    } else if (categorySlug === "comments") {
+      orderBy = [{ comments: { _count: "desc" } }, { views: "desc" }];
+    } else {
+      orderBy = [{ views: "desc" }, { publishedAt: "desc" }];
+    }
+
+    const blogs = await prisma.post.findMany({
+      where: whereClause,
+      orderBy,
+      take: limit,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+        postCategories: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    return blogs.map((post: any) => ({
+      id: post.id,
+      title: post.title,
+      description: post.description,
+      slug: post.slug,
+      coverImage: post.coverImage,
+      publishedAt: post.publishedAt,
+      views: post.views,
+      likes: post._count.likes,
+      comments: post._count.comments,
+      category: post.postCategories[0]?.category.slug || "uncategorized",
+      author: post.author,
+    }));
+  } catch (error) {
+    console.error("Error fetching top blogs by category:", error);
+    return [];
+  }
+}
+
+export interface TopAuthor {
+  id: string;
+  name: string;
+  username: string | null;
+  avatar: string | null;
+  bio: string | null;
+  totalPosts: number;
+  totalViews: number;
+  totalLikes: number;
+  totalComments: number;
+  totalFollowers: number;
+  category?: string;
+}
+
+export async function getTopAuthorsByCategory(
+  categorySlug: string = "all",
+  limit: number = 10
+): Promise<TopAuthor[]> {
+  try {
+    let whereClause: any = {
+      posts: {
+        some: {
+          status: PostStatus.PUBLISHED,
+        },
+      },
+    };
+
+    // If filtering by category, add category filter
+    if (
+      categorySlug !== "all" &&
+      categorySlug !== "followers" &&
+      categorySlug !== "posts"
+    ) {
+      whereClause.posts.some.postCategories = {
+        some: {
+          category: {
+            slug: categorySlug,
+          },
+        },
+      };
+    }
+
+    const authors = await prisma.user.findMany({
+      where: whereClause,
+      include: {
+        posts: {
+          where: {
+            status: PostStatus.PUBLISHED,
+            ...(categorySlug !== "all" &&
+            categorySlug !== "followers" &&
+            categorySlug !== "posts"
+              ? {
+                  postCategories: {
+                    some: {
+                      category: {
+                        slug: categorySlug,
+                      },
+                    },
+                  },
+                }
+              : {}),
+          },
+          include: {
+            _count: {
+              select: {
+                likes: true,
+                comments: true,
+              },
+            },
+            postCategories: {
+              include: {
+                category: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            followers: true,
+            posts: {
+              where: {
+                status: PostStatus.PUBLISHED,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Calculate aggregated stats and transform data
+    const transformedAuthors = authors.map((author: any) => {
+      const totalViews = author.posts.reduce(
+        (sum: number, post: any) => sum + post.views,
+        0
+      );
+      const totalLikes = author.posts.reduce(
+        (sum: number, post: any) => sum + post._count.likes,
+        0
+      );
+      const totalComments = author.posts.reduce(
+        (sum: number, post: any) => sum + post._count.comments,
+        0
+      );
+      const mostUsedCategory =
+        author.posts.length > 0
+          ? author.posts[0].postCategories[0]?.category.slug || "uncategorized"
+          : "uncategorized";
+
+      return {
+        id: author.id,
+        name: author.name,
+        username: author.username,
+        avatar: author.avatar,
+        bio: author.bio,
+        totalPosts: author._count.posts,
+        totalViews,
+        totalLikes,
+        totalComments,
+        totalFollowers: author._count.followers,
+        category: mostUsedCategory,
+      };
+    });
+
+    // Filter out authors with no posts
+    const authorsWithPosts = transformedAuthors.filter(
+      (author) => author.totalPosts > 0
+    );
+
+    // Sort based on category
+    let sortedAuthors;
+    if (categorySlug === "followers") {
+      sortedAuthors = authorsWithPosts.sort(
+        (a, b) => b.totalFollowers - a.totalFollowers
+      );
+    } else if (categorySlug === "posts") {
+      sortedAuthors = authorsWithPosts.sort(
+        (a, b) => b.totalPosts - a.totalPosts
+      );
+    } else {
+      // Default sort by total views
+      sortedAuthors = authorsWithPosts.sort(
+        (a, b) => b.totalViews - a.totalViews
+      );
+    }
+
+    return sortedAuthors.slice(0, limit);
+  } catch (error) {
+    console.error("Error fetching top authors by category:", error);
+    return [];
+  }
+}
+
+export async function getCategories() {
+  try {
+    const categories = await prisma.category.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    return categories;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return [];
+  }
+}
