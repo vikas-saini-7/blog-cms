@@ -319,6 +319,13 @@ export async function deleteBlog(blogId: string) {
       return { success: false, message: "Not authorized or blog not found" };
     }
 
+    // Delete all related records first
+    await prisma.comment.deleteMany({ where: { postId: blogId } });
+    await prisma.like.deleteMany({ where: { postId: blogId } });
+    await prisma.bookmark.deleteMany({ where: { postId: blogId } });
+    await prisma.postTag.deleteMany({ where: { postId: blogId } });
+    await prisma.postCategory.deleteMany({ where: { postId: blogId } });
+
     await prisma.post.delete({
       where: { id: blogId },
     });

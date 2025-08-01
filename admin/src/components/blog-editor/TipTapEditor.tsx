@@ -11,6 +11,7 @@ import Blockquote from "@tiptap/extension-blockquote";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 // import History from "@tiptap/extension-history";
+import "@/app/blog-content.css";
 
 import {
   Bold,
@@ -66,13 +67,13 @@ export default function TiptapEditor({
   });
 
   useEffect(() => {
-  if (!editor) return;
+    if (!editor) return;
 
-  const currentHTML = editor.getHTML();
-  if (content !== currentHTML) {
-    editor.commands.setContent(content); // Don't trigger onUpdate loop
-  }
-}, [content, editor]);
+    const currentHTML = editor.getHTML();
+    if (content !== currentHTML) {
+      editor.commands.setContent(content); // Don't trigger onUpdate loop
+    }
+  }, [content, editor]);
 
   const addImage = useCallback(() => {
     const url = window.prompt("Enter image URL:");
@@ -82,8 +83,6 @@ export default function TiptapEditor({
   }, [editor]);
 
   if (!editor) return null;
-
-  
 
   return (
     <div className="border border-input rounded-md overflow-hidden">
@@ -250,7 +249,7 @@ export default function TiptapEditor({
         </ToggleGroup>
       </div>
 
-      <EditorContent editor={editor} />
+      <EditorContent className="blog-content" editor={editor} />
     </div>
   );
 }

@@ -39,6 +39,7 @@ export default function PostsPage() {
   const [openDialog, setOpenDialog] = useState(false);
   const [slugToConfirm, setSlugToConfirm] = useState("");
   const [selectedBlog, setSelectedBlog] = useState<BlogWithStatus | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -86,6 +87,7 @@ export default function PostsPage() {
 
   const confirmDelete = async () => {
     if (selectedBlog && slugToConfirm === selectedBlog.slug) {
+      setIsDeleting(true);
       const res = await deleteBlog(selectedBlog.id);
       if (res.success) {
         setBlogs((prev) => prev.filter((b) => b.id !== selectedBlog.id));
@@ -94,6 +96,7 @@ export default function PostsPage() {
       } else {
         alert(res.message || "Failed to delete blog.");
       }
+      setIsDeleting(false);
     }
   };
 
@@ -230,15 +233,19 @@ export default function PostsPage() {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setOpenDialog(false)}
+              disabled={isDeleting}
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              disabled={slugToConfirm !== selectedBlog?.slug}
+              disabled={slugToConfirm !== selectedBlog?.slug || isDeleting}
               onClick={confirmDelete}
             >
-              Delete
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

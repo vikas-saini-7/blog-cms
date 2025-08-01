@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getDraftById } from "@/actions/blog.actions";
-import "./blog-content.css";
+import "@/app/blog-content.css";
 
 type Props = {
   params: Promise<{ draftId: string }>;
