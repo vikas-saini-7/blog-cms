@@ -32,6 +32,7 @@ export const authOptions: AuthOptions = {
           name: user.name,
           email: user.email,
           isOnboarded: user.isOnboarded || false,
+          username: user.username!,
         };
       },
     }),
@@ -61,10 +62,12 @@ export const authOptions: AuthOptions = {
         session.user.name = userFromDB.name;
         session.user.email = userFromDB.email!;
         session.user.isOnboarded = userFromDB.isOnboarded ?? false;
+        session.user.username = userFromDB.username!;
       }
 
       if (userFromDB?.isOnboarded) {
         session.user.avatar = userFromDB.avatar;
+        session.user.username = userFromDB.username || "";
       }
 
       return session;

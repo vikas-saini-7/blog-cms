@@ -23,6 +23,8 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import { Skeleton } from "../ui/skeleton";
 
 // Menu items.
 const items = [
@@ -60,14 +62,28 @@ const items = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
 
   return (
     <Sidebar className="w-64 border-r bg-background text-foreground">
       <SidebarContent className="p-4">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wide flex-col items-start mb-4">
-            <h1 className="text-[16px]">CMS Console</h1>
-            <p className="text-[10px]">@username</p>
+          <SidebarGroupLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wide flex-col items-start mb-8">
+            <Link
+              href="/"
+              className="text-xl font-bold text-orange-500 font-heading"
+            >
+              PLUMA ADMIN
+            </Link>
+            {status !== "loading" ? (
+              <p className="text-[10px]">
+                @{session?.user?.username || "username"}
+              </p>
+            ) : (
+              <div>
+                <Skeleton className="h-4 w-24" />
+              </div>
+            )}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

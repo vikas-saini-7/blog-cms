@@ -9,6 +9,7 @@ declare module "next-auth" {
       name: string;
       avatar?: string | null;
       isOnboarded: boolean;
+      username?: string;
     } & DefaultSession["user"];
   }
 
@@ -17,6 +18,7 @@ declare module "next-auth" {
     name: string;
     email: string;
     isOnboarded: boolean;
+    username?: string;
   }
 }
 
@@ -26,5 +28,6 @@ declare module "next-auth/jwt" {
     name: string;
     email: string;
     isOnboarded: boolean;
+    username?: string;
   }
 }
