@@ -57,7 +57,6 @@ export async function generateMetadata({
   };
 }
 
-
 export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params;
 
@@ -78,7 +77,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     avatar: blog.author.avatar,
     bio: blog.author.bio,
     isProfilePublic: true, // Default value, you may want to add this to your schema
-    followersCount: 0, // Default value, you may want to add this to your schema
+    followersCount: blog.author.followersCount,
     isFollowing: false, // Default value, you may want to implement this logic
   };
 

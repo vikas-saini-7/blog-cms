@@ -201,6 +201,7 @@ export interface BlogDetail {
     username: string | null;
     avatar: string | null;
     bio: string | null;
+    followersCount: number;
   };
   tags: Array<{
     id: string;
@@ -219,10 +220,6 @@ export interface BlogDetail {
 export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session?.user?.email) {
-      return null;
-    }
 
     const post = await prisma.post.findUnique({
       where: {
@@ -268,13 +265,25 @@ export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
       data: { views: { increment: 1 } },
     });
 
+    // Get author's followers count
+    const authorWithFollowers = await prisma.user.findUnique({
+      where: { id: post.author.id },
+      include: {
+        _count: {
+          select: {
+            followers: true,
+          },
+        },
+      },
+    });
+
     let isBookmarked = false;
     let isLiked = false;
-    const userEmail = session?.user?.email;
 
-    if (userEmail) {
+    // Only check bookmark and like status if user is authenticated
+    if (session?.user?.email) {
       const user = await prisma.user.findUnique({
-        where: { email: userEmail },
+        where: { email: session.user.email },
         select: { id: true },
       });
 
@@ -303,7 +312,10 @@ export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
       views: post.views + 1, // Include the incremented view
       likes: post._count.likes,
       comments: post._count.comments,
-      author: post.author,
+      author: {
+        ...post.author,
+        followersCount: authorWithFollowers?._count.followers || 0,
+      },
       tags: post.postTags.map((pt) => pt.tag),
       categories: post.postCategories.map((pc) => pc.category),
       isBookmarked,
