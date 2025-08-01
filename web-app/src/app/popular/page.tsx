@@ -68,54 +68,71 @@ const TopBlogsPage = () => {
 
   return (
     <>
-      <section className="container mx-auto px-4 py-10 max-w-4xl min-h-screen">
-        <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 font-heading">
-          Top 10 Blogs
-        </h1>
+      <section className="container mx-auto px-4 py-6 md:py-10 max-w-4xl min-h-screen">
+        <div className="text-center mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-heading mb-2">
+            Top 10 Blogs
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Discover the most popular blogs across different categories
+          </p>
+        </div>
 
         {/* Filters */}
-        <ScrollArea className="w-full whitespace-nowrap mb-10 pb-2">
-          <div className="flex w-max space-x-2 p-1">
-            {categoryOptions.map((cat) => (
-              <Button
-                key={cat.value}
-                variant={activeCategory === cat.value ? "default" : "outline"}
-                onClick={() => setActiveCategory(cat.value)}
-                className="capitalize text-sm whitespace-nowrap"
-              >
-                {cat.label}
-              </Button>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        <div className="mb-6 md:mb-8">
+          <ScrollArea className="w-full whitespace-nowrap pb-1">
+            <div className="flex w-max space-x-2 pb-2">
+              {categoryOptions.map((cat) => (
+                <Button
+                  key={cat.value}
+                  variant={activeCategory === cat.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActiveCategory(cat.value)}
+                  className="text-xs md:text-sm whitespace-nowrap rounded-full"
+                >
+                  {cat.label}
+                </Button>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
 
         {/* Content */}
         {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div className="flex justify-center py-12">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              <p className="text-sm text-muted-foreground">Loading blogs...</p>
+            </div>
           </div>
         ) : blogs.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground">
-              No blogs found for this category.
-            </p>
+          <div className="text-center py-16">
+            <div className="max-w-md mx-auto">
+              <p className="text-lg font-medium text-muted-foreground mb-2">
+                No blogs found
+              </p>
+              <p className="text-sm text-muted-foreground">
+                No blogs found for this category. Try selecting a different
+                filter.
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-3 md:space-y-4">
             {blogs.map((blog, index) => (
               <Link
                 href={`/blogs/${blog.slug}`}
                 key={blog.id}
-                className="group flex items-center gap-4 p-4 bg-card border border-muted rounded-xl hover:shadow-md transition-all"
+                className="group flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-card border border-muted rounded-lg md:rounded-xl hover:shadow-md transition-all duration-200"
               >
                 {/* Rank */}
-                <div className="text-xl sm:text-2xl font-bold text-muted-foreground w-8 shrink-0">
+                <div className="text-lg md:text-xl lg:text-2xl font-bold text-muted-foreground w-6 md:w-8 shrink-0">
                   #{index + 1}
                 </div>
 
                 {/* Thumbnail */}
-                <div className="relative w-28 h-20 sm:w-36 sm:h-24 rounded-md overflow-hidden shrink-0">
+                <div className="relative w-20 h-14 md:w-28 md:h-20 lg:w-36 lg:h-24 rounded-md overflow-hidden shrink-0">
                   <Image
                     src={
                       blog.coverImage ||
@@ -128,31 +145,31 @@ const TopBlogsPage = () => {
                 </div>
 
                 {/* Info */}
-                <div className="flex-1">
-                  <h2 className="text-base sm:text-lg font-semibold text-foreground group-hover:underline line-clamp-2">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground group-hover:underline line-clamp-2 mb-1">
                     {blog.title}
                   </h2>
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                  <p className="text-xs md:text-sm text-muted-foreground line-clamp-1 md:line-clamp-2 mb-2">
                     {blog.description || "No description available."}
                   </p>
 
-                  <div className="flex gap-4 text-sm text-muted-foreground mt-2">
+                  <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <ThumbsUp className="w-4 h-4" />
-                      {blog.likes}
+                      <ThumbsUp className="w-3 h-3 md:w-4 md:h-4" />
+                      <span className="hidden xs:inline">{blog.likes}</span>
                     </span>
                     <span className="flex items-center gap-1">
-                      <MessageCircle className="w-4 h-4" />
-                      {blog.comments}
+                      <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
+                      <span className="hidden xs:inline">{blog.comments}</span>
                     </span>
-                    <span className="hidden sm:inline capitalize">
+                    <span className="hidden md:inline capitalize text-xs">
                       {blog.category}
                     </span>
                   </div>
                 </div>
 
                 {/* Arrow */}
-                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:translate-x-1 transition-transform shrink-0" />
               </Link>
             ))}
           </div>

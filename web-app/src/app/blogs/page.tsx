@@ -11,6 +11,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2, CalendarClock, Flame } from "lucide-react";
 import { Blog } from "@/types";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -129,88 +130,102 @@ function BlogsContent() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-10 space-y-10">
+    <div className="container mx-auto px-4 py-6 md:py-10 space-y-6 md:space-y-10">
       {/* Header + Filters */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-3xl sm:text-4xl font-bold text-center font-heading">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-heading">
           Blog Feed
         </h1>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="space-x-4">
-          {tags.map((t) => {
-            const isActive = tag === t.slug;
-            return (
+      <div className="space-y-4">
+        {/* Tags Section */}
+        <div className="space-y-2">
+          {/* <h3 className="text-sm font-semibold text-gray-700">
+            Filter by Tags
+          </h3> */}
+          <ScrollArea className="w-full">
+            <div className="flex items-center gap-2 pb-2">
               <Button
-                key={t.id}
-                variant={isActive ? "default" : "outline"}
-                className="text-sm rounded-full"
-                onClick={() => updateQuery("tag", t.slug)}
+                variant={!tag ? "default" : "outline"}
+                size="sm"
+                className="text-xs md:text-sm rounded-full whitespace-nowrap"
+                onClick={() => updateQuery("tag", "")}
               >
-                #{t.name}
+                All
               </Button>
-            );
-          })}
-          {tag && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => updateQuery("tag", "")}
-            >
-              Clear
-            </Button>
-          )}
+              {tags.map((t) => {
+                const isActive = tag === t.slug;
+                return (
+                  <Button
+                    key={t.id}
+                    variant={isActive ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs md:text-sm rounded-full whitespace-nowrap"
+                    onClick={() => updateQuery("tag", t.slug)}
+                  >
+                    #{t.name}
+                  </Button>
+                );
+              })}
+            </div>
+          </ScrollArea>
         </div>
-        <div className="flex space-x-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="text-sm flex items-center gap-2"
-              >
-                <Flame className="h-4 w-4" />
-                {sort === "latest" ? "Latest" : "Popular"}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+
+        {/* Sort & Time Filters */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2 border-t border-gray-100">
+          <div className="flex items-center gap-3">
+            {/* <span className="text-sm font-semibold text-gray-700">
+              Sort by:
+            </span> */}
+            <div className="flex gap-2">
               {SORTS.map((s) => (
-                <DropdownMenuItem
+                <Button
                   key={s}
+                  variant={sort === s ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs md:text-sm"
                   onClick={() => updateQuery("sort", s)}
                 >
+                  <Flame
+                    className={`h-3 w-3 mr-1 ${
+                      sort === s ? "text-white" : "text-gray-500"
+                    }`}
+                  />
                   {s.charAt(0).toUpperCase() + s.slice(1)}
-                </DropdownMenuItem>
+                </Button>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </div>
+          </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="text-sm flex items-center gap-2"
-              >
-                <CalendarClock className="h-4 w-4" />
-                {time.toUpperCase()}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+          <div className="flex items-center gap-3">
+            {/* <span className="text-sm font-semibold text-gray-700">
+              Time range:
+            </span> */}
+            <div className="flex gap-2">
               {TIMES.map((t) => (
-                <DropdownMenuItem
+                <Button
                   key={t}
+                  variant={time === t ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs md:text-sm"
                   onClick={() => updateQuery("time", t)}
                 >
+                  <CalendarClock
+                    className={`h-3 w-3 mr-1 ${
+                      time === t ? "text-white" : "text-gray-500"
+                    }`}
+                  />
                   {t.toUpperCase()}
-                </DropdownMenuItem>
+                </Button>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Blog Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
         {blogs.map((blog) => (
           <BlogCard key={blog.id} blog={blog} />
         ))}
@@ -240,13 +255,13 @@ export default function BlogsPage() {
   return (
     <Suspense
       fallback={
-        <div className="container mx-auto px-4 py-10 space-y-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <h1 className="text-3xl sm:text-4xl font-bold text-center font-heading">
+        <div className="container mx-auto px-4 py-6 md:py-10 space-y-6 md:space-y-10">
+          <div className="flex flex-col gap-4">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-heading">
               Blog Feed
             </h1>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {[...Array(8)].map((_, i) => (
               <BlogCardSkeleton key={i} />
             ))}

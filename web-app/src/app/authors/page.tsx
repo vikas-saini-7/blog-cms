@@ -75,92 +75,117 @@ const TopAuthorsPage = () => {
 
   return (
     <>
-      <section className="container mx-auto px-4 py-10 max-w-4xl min-h-screen">
-        <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 font-heading">
-          Top 10 Authors
-        </h1>
+      <section className="container mx-auto px-4 py-6 md:py-10 max-w-4xl min-h-screen">
+        <div className="text-center mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-heading mb-2">
+            Top 10 Authors
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Discover the most influential authors and content creators
+          </p>
+        </div>
 
         {/* Filters */}
-        <ScrollArea className="w-full whitespace-nowrap mb-10 pb-2">
-          <div className="flex w-max space-x-2 p-1">
-            {categoryOptions.map((cat) => (
-              <Button
-                key={cat.value}
-                variant={activeCategory === cat.value ? "default" : "outline"}
-                onClick={() => setActiveCategory(cat.value)}
-                className="capitalize text-sm whitespace-nowrap"
-              >
-                {cat.label}
-              </Button>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        <div className="mb-6 md:mb-8">
+          <ScrollArea className="w-full whitespace-nowrap pb-1">
+            <div className="flex w-max space-x-2 pb-2">
+              {categoryOptions.map((cat) => (
+                <Button
+                  key={cat.value}
+                  variant={activeCategory === cat.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActiveCategory(cat.value)}
+                  className="text-xs md:text-sm whitespace-nowrap rounded-full"
+                >
+                  {cat.label}
+                </Button>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
 
         {/* Content */}
         {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div className="flex justify-center py-12">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              <p className="text-sm text-muted-foreground">
+                Loading authors...
+              </p>
+            </div>
           </div>
         ) : authors.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground">
-              No authors found for this category.
-            </p>
+          <div className="text-center py-16">
+            <div className="max-w-md mx-auto">
+              <p className="text-lg font-medium text-muted-foreground mb-2">
+                No authors found
+              </p>
+              <p className="text-sm text-muted-foreground">
+                No authors found for this category. Try selecting a different
+                filter.
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-3 md:space-y-4">
             {authors.map((author, index) => (
               <Link
                 href={`/authors/${author.username || author.id}`}
                 key={author.id}
-                className="group flex items-center gap-4 p-4 bg-card border border-muted rounded-xl hover:shadow-md transition-all"
+                className="group flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-card border border-muted rounded-lg md:rounded-xl hover:shadow-md transition-all duration-200"
               >
                 {/* Rank */}
-                <div className="text-xl sm:text-2xl font-bold text-muted-foreground w-8 shrink-0">
+                <div className="text-lg md:text-xl lg:text-2xl font-bold text-muted-foreground w-6 md:w-8 shrink-0">
                   #{index + 1}
                 </div>
 
                 {/* Avatar */}
                 <div className="shrink-0">
-                  <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
+                  <Avatar className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24">
                     <AvatarImage src={author.avatar || ""} alt={author.name} />
-                    <AvatarFallback className="text-lg font-semibold">
+                    <AvatarFallback className="text-sm md:text-lg font-semibold">
                       {author.name[0]}
                     </AvatarFallback>
                   </Avatar>
                 </div>
 
                 {/* Info */}
-                <div className="flex-1">
-                  <h2 className="text-base sm:text-lg font-semibold text-foreground group-hover:underline">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground group-hover:underline mb-1">
                     {author.name}
                   </h2>
                   {author.username && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground mb-1">
                       @{author.username}
                     </p>
                   )}
                   {author.bio && (
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    <p className="text-xs md:text-sm text-muted-foreground line-clamp-1 md:line-clamp-2 mb-2">
                       {author.bio}
                     </p>
                   )}
 
-                  <div className="flex gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mt-2">
+                  <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                      {author.totalFollowers}
+                      <Users className="w-3 h-3 md:w-4 md:h-4" />
+                      <span className="hidden xs:inline">
+                        {author.totalFollowers}
+                      </span>
                     </span>
                     <span className="flex items-center gap-1">
-                      <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
-                      {author.totalPosts}
+                      <FileText className="w-3 h-3 md:w-4 md:h-4" />
+                      <span className="hidden xs:inline">
+                        {author.totalPosts}
+                      </span>
                     </span>
                     <span className="flex items-center gap-1">
-                      <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
-                      {author.totalLikes}
+                      <Heart className="w-3 h-3 md:w-4 md:h-4" />
+                      <span className="hidden xs:inline">
+                        {author.totalLikes}
+                      </span>
                     </span>
-                    <span className="hidden sm:flex items-center gap-1">
+                    <span className="hidden md:flex items-center gap-1">
                       <MessageCircle className="w-4 h-4" />
                       {author.totalComments}
                     </span>
@@ -168,15 +193,15 @@ const TopAuthorsPage = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="hidden sm:block text-right text-sm text-muted-foreground">
-                  <div className="font-semibold text-foreground">
+                <div className="hidden lg:block text-right text-sm text-muted-foreground shrink-0">
+                  <div className="font-semibold text-foreground text-sm md:text-base">
                     {author.totalViews.toLocaleString()}
                   </div>
-                  <div>Total Views</div>
+                  <div className="text-xs">Total Views</div>
                 </div>
 
                 {/* Arrow */}
-                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:translate-x-1 transition-transform shrink-0" />
               </Link>
             ))}
           </div>

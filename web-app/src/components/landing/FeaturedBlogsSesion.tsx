@@ -28,8 +28,8 @@ const FeaturedBlogsSesion = () => {
 
   if (loading) {
     return (
-      <section className="container mx-auto">
-        <SectionTitle title="Popular Blogs" />
+      <section className="container mx-auto px-4 py-8 md:py-12">
+        <SectionTitle title="Featured Blogs" />
         <BlogSwiperSkeleton />
       </section>
     );
@@ -40,7 +40,7 @@ const FeaturedBlogsSesion = () => {
   }
 
   return (
-    <section className="container mx-auto">
+    <section className="container mx-auto px-4 py-8 md:py-12">
       <SectionTitle title="Featured Blogs" />
       <BlogSwiper blogs={blogs} />
     </section>

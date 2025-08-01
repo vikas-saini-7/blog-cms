@@ -10,7 +10,7 @@ export default function Home() {
       <Hero />
       <FeaturedBlogsSesion />
       <PopularSection />
-      <TrendingByTags />
+      {/* <TrendingByTags /> */}
       <CTASection />
     </div>
   );
