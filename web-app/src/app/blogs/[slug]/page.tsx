@@ -110,7 +110,6 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
           <BookmarkButton
             size="md"
             postId={blog.id}
-            // userId={userId}
             isBookmarked={blog.isBookmarked}
           />
         </div>

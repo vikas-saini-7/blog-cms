@@ -9,6 +9,8 @@ import {
 import { motion } from "framer-motion";
 import { toggleBookmark } from "@/actions/user-interactions.actions";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 type Size = "sm" | "md" | "lg";
 
@@ -34,12 +36,20 @@ export function BookmarkButton({
   const [bookmarked, setBookmarked] = useState(isBookmarked);
   const [isPending, startTransition] = useTransition();
   const { icon, padding } = sizeMap[size];
+  const router = useRouter();
+
+  const { data: session, status } = useSession();
 
   const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
 
     startTransition(() => {
+      if (!session?.user.id) {
+        toast.error("Login to bookmark blogs");
+        router.push("/auth/login");
+        return;
+      }
       toggleBookmark(postId)
         .then(() => {
           setBookmarked((prev) => {

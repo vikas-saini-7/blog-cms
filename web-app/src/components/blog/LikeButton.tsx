@@ -4,6 +4,9 @@ import { useState, useTransition } from "react";
 import { HeartIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { toggleLike } from "@/actions/user-interactions.actions";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface LikeButtonProps {
   postId: string;
@@ -19,8 +22,16 @@ export function LikeButton({
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const { data: session, status } = useSession();
 
   const handleToggleLike = () => {
+    if (!session?.user.id) {
+      toast.error("Login to like blogs");
+      router.push("/auth/login");
+      return;
+    }
     setLiked((prev) => !prev);
     setLikeCount((count) => (liked ? count - 1 : count + 1));
 
