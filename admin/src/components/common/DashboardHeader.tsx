@@ -20,7 +20,7 @@ import HeaderAuthSkeleton from "../skeletons/HeaderAuthSkeleton";
 const userDropdownLinks = [
   { href: "/profile", label: "Profile" },
   { href: "/settings", label: "Settings" },
-  { href: "/dashboard", label: "Admin Dashboard" },
+  { href: "https://pluma-web.vercel.app", label: "Pluma Web" },
 ];
 const DashboardHeader = () => {
   const { data: session, status } = useSession();

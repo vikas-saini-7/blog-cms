@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 const features = [
   {
@@ -48,12 +49,14 @@ const CTASection = () => {
 
       {/* CTA Button */}
       <div className="text-center mt-14">
-        <Button
-          size="lg"
-          className="text-md font-bold py-6 px-8 cursor-pointer"
-        >
-          Start Writing
-        </Button>
+        <Link href="/auth/register">
+          <Button
+            size="lg"
+            className="text-md font-bold py-6 px-8 cursor-pointer"
+          >
+            Start Writing
+          </Button>
+        </Link>
       </div>
     </section>
   );

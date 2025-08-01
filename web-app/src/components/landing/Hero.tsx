@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 const Hero = () => {
   return (
@@ -13,12 +14,14 @@ const Hero = () => {
           Read insightful blogs, write your own stories, <br />
           and join a vibrant community of creators.
         </h1>
-        <Button
-          size="lg"
-          className="text-md font-bold py-6 px-8 cursor-pointer mt-8"
-        >
-          Start Now
-        </Button>
+        <Link href="/auth/register">
+          <Button
+            size="lg"
+            className="text-md font-bold py-6 px-8 cursor-pointer mt-8"
+          >
+            Start Now
+          </Button>
+        </Link>
       </div>
     </div>
   );

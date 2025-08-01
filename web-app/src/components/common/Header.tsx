@@ -23,7 +23,7 @@ const commonLinks = [
 const userDropdownLinks = [
   { href: "/profile", label: "Profile" },
   { href: "/settings", label: "Settings" },
-  { href: "/dashboard", label: "Admin Dashboard" },
+  { href: "https://pluma-admin.vercel.app", label: "Admin Dashboard" },
 ];
 
 export default function SiteHeader() {
