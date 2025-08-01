@@ -1,18 +1,48 @@
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import SectionTitle from "./SectionTitle";
 import BlogSwiper from "./BlogSwiper";
+import { Blog } from "@/types";
 import { getFeaturedBlogs } from "@/actions/blog.actions";
+import BlogSwiperSkeleton from "../skeletons/BlogSkeletonSwiper";
 
-const FeaturedBlogsSesion = async () => {
-  const featuredBlogs = await getFeaturedBlogs(6);
+const FeaturedBlogsSesion = () => {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (featuredBlogs.length === 0) {
+  useEffect(() => {
+    const fetchFeaturedBlogs = async () => {
+      try {
+        setLoading(true);
+        const featuredBlogs = await getFeaturedBlogs(6);
+        setBlogs(featuredBlogs);
+      } catch (error) {
+        console.error("Error fetching featured blogs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedBlogs();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="container mx-auto">
+        <SectionTitle title="Popular Blogs" />
+        <BlogSwiperSkeleton />
+      </section>
+    );
+  }
+
+  if (blogs.length === 0) {
     return null;
   }
+
   return (
     <section className="container mx-auto">
       <SectionTitle title="Featured Blogs" />
-      <BlogSwiper blogs={featuredBlogs} />
+      <BlogSwiper blogs={blogs} />
     </section>
   );
 };

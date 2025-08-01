@@ -1,20 +1,49 @@
-import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import SectionTitle from "./SectionTitle";
 import { Blog } from "@/types";
 import BlogSwiper from "./BlogSwiper";
 import { getPopularBlogs } from "@/actions/blog.actions";
+import BlogCardSkeleton from "../skeletons/BlogCardSkeleton";
+import BlogSwiperSkeleton from "../skeletons/BlogSkeletonSwiper";
 
+const PopularSection = () => {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
 
-const PopularSection = async () => {
-  const popularBlogs = await getPopularBlogs(6);
+  useEffect(() => {
+    const fetchPopularBlogs = async () => {
+      try {
+        setLoading(true);
+        const popularBlogs = await getPopularBlogs(6);
+        setBlogs(popularBlogs);
+      } catch (error) {
+        console.error("Error fetching popular blogs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (popularBlogs.length === 0) {
+    fetchPopularBlogs();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="container mx-auto">
+        <SectionTitle title="Popular Blogs" />
+        <BlogSwiperSkeleton />
+      </section>
+    );
+  }
+
+  if (blogs.length === 0) {
     return null;
   }
+
   return (
     <section className="container mx-auto">
       <SectionTitle title="Popular Blogs" />
-      <BlogSwiper blogs={popularBlogs} />
+      <BlogSwiper blogs={blogs} />
     </section>
   );
 };
