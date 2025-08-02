@@ -9,7 +9,7 @@ import TiptapEditor from "@/components/blog-editor/TipTapEditor";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { IconEye } from "@tabler/icons-react";
 import { toast } from "sonner";
-import { createBlog, updateBlog, getBlogById } from "@/actions/blog.actions";
+import { createBlog, updateBlog, getBlogById } from "@/actions/post.actions";
 import { useRouter } from "next/navigation";
 import { uploadBlogCover } from "@/utils/uploadFile";
 import { getAllCategories } from "@/actions/category.actions";

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { getDraftById } from "@/actions/blog.actions";
+import { getDraftById } from "@/actions/post.actions";
 import "@/app/blog-content.css";
 
 type Props = {

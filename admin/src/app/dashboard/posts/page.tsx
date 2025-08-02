@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { deleteBlog, getUserBlogs } from "@/actions/blog.actions";
+import { deleteBlog, getUserBlogs } from "@/actions/post.actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
