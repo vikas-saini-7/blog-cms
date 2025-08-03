@@ -309,7 +309,7 @@ export async function getBlogBySlug(slug: string): Promise<BlogDetail | null> {
       slug: post.slug,
       coverImage: post.coverImage,
       publishedAt: post.publishedAt,
-      views: post.views + 1, // Include the incremented view
+      views: post.views,
       likes: post._count.likes,
       comments: post._count.comments,
       author: {
