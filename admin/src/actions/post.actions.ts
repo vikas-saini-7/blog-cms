@@ -278,7 +278,12 @@ export async function getDraftById(id: string) {
   }
 }
 
-export async function getUserBlogs() {
+export async function getUserBlogs(params?: {
+  page?: number;
+  limit?: number;
+  status?: "all" | "draft" | "published";
+  search?: string;
+}) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -286,16 +291,69 @@ export async function getUserBlogs() {
       return { success: false, message: "Unauthorized" };
     }
 
+    const page = params?.page || 1;
+    const limit = params?.limit || 7;
+    const offset = (page - 1) * limit;
+
+    // Build where conditions
+    const whereConditions: any = {
+      authorId: session.user.id,
+    };
+
+    // Add status filter
+    if (params?.status && params.status !== "all") {
+      whereConditions.status =
+        params.status === "draft" ? PostStatus.DRAFT : PostStatus.PUBLISHED;
+    }
+
+    // Add search filter
+    if (params?.search) {
+      whereConditions.OR = [
+        { title: { contains: params.search, mode: "insensitive" } },
+        { description: { contains: params.search, mode: "insensitive" } },
+      ];
+    }
+
+    // Get total count for pagination
+    const totalCount = await prisma.post.count({
+      where: whereConditions,
+    });
+
+    // Get paginated blogs
     const blogs = await prisma.post.findMany({
-      where: {
-        authorId: session.user.id,
-      },
+      where: whereConditions,
       orderBy: {
         createdAt: "desc",
       },
+      skip: offset,
+      take: limit,
+      include: {
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+      },
     });
 
-    return { success: true, blogs };
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      success: true,
+      blogs: blogs.map((blog) => ({
+        ...blog,
+        likesCount: blog._count.likes,
+        commentsCount: blog._count.comments,
+      })),
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
   } catch (error) {
     console.error("getUserBlogs error:", error);
     return { success: false, message: "Something went wrong" };
