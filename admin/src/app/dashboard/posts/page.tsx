@@ -26,24 +26,6 @@ import { Blog } from "@/types";
 import BlogSkeleton from "@/components/skeletons/BlogTableSkeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
-
-// Custom hook for debouncing
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 type BlogWithStatus = Blog & {
   status: "draft" | "published";
@@ -60,9 +42,6 @@ type PaginationInfo = {
 };
 
 export default function PostsPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
   const [blogs, setBlogs] = useState<BlogWithStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -74,44 +53,18 @@ export default function PostsPage() {
     hasPreviousPage: false,
   });
 
-  // URL-based state management
-  const currentPage = parseInt(searchParams.get("page") || "1");
-  const currentFilter = (searchParams.get("status") || "all") as
-    | "all"
-    | "draft"
-    | "published";
-  const currentSearch = searchParams.get("search") || "";
-
-  const [searchInput, setSearchInput] = useState(currentSearch);
-  const debouncedSearch = useDebounce(searchInput, 500);
+  // Simple local state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentFilter, setCurrentFilter] = useState<
+    "all" | "draft" | "published"
+  >("all");
+  const [searchInput, setSearchInput] = useState("");
 
   // Dialog state
   const [openDialog, setOpenDialog] = useState(false);
   const [slugToConfirm, setSlugToConfirm] = useState("");
   const [selectedBlog, setSelectedBlog] = useState<BlogWithStatus | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Update URL params
-  const updateUrlParams = useCallback(
-    (params: Record<string, string | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams.toString());
-
-      Object.entries(params).forEach(([key, value]) => {
-        if (
-          value === null ||
-          value === "" ||
-          (key === "page" && value === "1")
-        ) {
-          newSearchParams.delete(key);
-        } else {
-          newSearchParams.set(key, value);
-        }
-      });
-
-      router.push(`?${newSearchParams.toString()}`, { scroll: false });
-    },
-    [router, searchParams]
-  );
 
   // Fetch blogs function
   const fetchBlogs = useCallback(
@@ -124,7 +77,7 @@ export default function PostsPage() {
           page: currentPage,
           limit: 7,
           status: currentFilter,
-          search: debouncedSearch,
+          search: searchInput,
         });
 
         if (res.success && res.blogs && res.pagination) {
@@ -164,7 +117,7 @@ export default function PostsPage() {
         setRefreshing(false);
       }
     },
-    [currentPage, currentFilter, debouncedSearch]
+    [currentPage, currentFilter, searchInput]
   );
 
   // Effects
@@ -172,22 +125,19 @@ export default function PostsPage() {
     fetchBlogs();
   }, [fetchBlogs]);
 
-  useEffect(() => {
-    if (debouncedSearch !== currentSearch) {
-      updateUrlParams({ search: debouncedSearch, page: null });
-    }
-  }, [debouncedSearch, currentSearch, updateUrlParams]);
-
   // Event handlers
   const handleFilterChange = (newFilter: string) => {
-    updateUrlParams({
-      status: newFilter === "all" ? null : newFilter,
-      page: null,
-    });
+    setCurrentFilter(newFilter as "all" | "draft" | "published");
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (newPage: number) => {
-    updateUrlParams({ page: newPage.toString() });
+    setCurrentPage(newPage);
   };
 
   const handleDeleteClick = (blog: BlogWithStatus) => {
@@ -228,13 +178,6 @@ export default function PostsPage() {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold">My Blogs</h2>
-          {/* <p className="text-sm text-gray-600">
-            {pagination.totalCount > 0
-              ? `${pagination.totalCount} blog${
-                  pagination.totalCount !== 1 ? "s" : ""
-                } found`
-              : "No blogs found"}
-          </p> */}
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -283,7 +226,7 @@ export default function PostsPage() {
           <Input
             placeholder="Search blogs..."
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={handleSearchChange}
             className="pl-10 bg-white"
           />
         </div>
@@ -299,16 +242,16 @@ export default function PostsPage() {
               <Pencil className="w-8 h-8 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900">
-              {currentSearch || currentFilter !== "all"
+              {searchInput || currentFilter !== "all"
                 ? "No blogs match your criteria"
                 : "No blogs yet"}
             </h3>
             <p className="text-gray-500 max-w-sm mx-auto">
-              {currentSearch || currentFilter !== "all"
+              {searchInput || currentFilter !== "all"
                 ? "Try adjusting your search terms or filters to find what you're looking for."
                 : "Get started by creating your first blog post."}
             </p>
-            {!currentSearch && currentFilter === "all" && (
+            {!searchInput && currentFilter === "all" && (
               <Link href="/dashboard/blog-editor">
                 <Button className="mt-4">Create Your First Blog</Button>
               </Link>
