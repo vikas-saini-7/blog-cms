@@ -65,54 +65,52 @@ export function AppSidebar() {
   const { data: session, status } = useSession();
 
   return (
-    <Sidebar className="w-64 border-r bg-background text-foreground">
-      <SidebarContent className="p-4">
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wide flex-col items-start mb-8">
-            <Link
-              href="/"
-              className="text-xl font-bold text-orange-500 font-heading"
-            >
-              PLUMA ADMIN
-            </Link>
+    <Sidebar className="w-64">
+      <SidebarContent className="flex flex-col h-full">
+        <div className="p-6 border-b">
+          <Link href="/" className="flex flex-col space-y-0.5 group">
+            <span className="text-xl font-bold tracking-tight transition-colors">
+              Pluma Admin
+            </span>
             {status !== "loading" ? (
-              <p className="text-[10px]">
+              <span className="text-xs text-muted-foreground">
                 @{session?.user?.username || "username"}
-              </p>
+              </span>
             ) : (
-              <div>
-                <Skeleton className="h-4 w-24" />
-              </div>
+              <Skeleton className="h-3 w-20 mt-1" />
             )}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => {
-                const isActive = pathname === item.url;
+          </Link>
+        </div>
 
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <Link
-                        href={item.url}
+        <div className="flex-1 p-4 pt-3">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {items.map((item) => {
+                  const isActive = pathname === item.url;
+
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
                         className={cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                          "hover:bg-white hover:text-foreground",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                          "w-full justify-start h-9 rounded-l-none transition-all ease-in-out durarion-200 px-4",
                           isActive &&
-                            "font-semibold shadow-sm text-orange-500 bg-white"
+                            "bg-primary/10 text-primary font-medium border-l-2 border-primary"
                         )}
                       >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                        <Link href={item.url}>
+                          <item.icon className="mr-3 h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </div>
       </SidebarContent>
     </Sidebar>
   );

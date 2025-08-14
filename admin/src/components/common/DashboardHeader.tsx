@@ -26,7 +26,7 @@ const DashboardHeader = () => {
   const { data: session, status } = useSession();
 
   return (
-    <header className="flex items-center justify-between gap-4 px-4 py-3 border-b bg-background">
+    <header className="flex items-center justify-between gap-4 px-4 py-3 border-b bg-white/50 backdrop-blur-sm sticky top-0 z-50">
       {/* Left: Sidebar + Page Title */}
       <div className="flex items-center gap-4">
         <SidebarTrigger />
