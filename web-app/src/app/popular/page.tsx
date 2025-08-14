@@ -4,7 +4,13 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Loader2, ThumbsUp, MessageCircle, ArrowRight } from "lucide-react";
+import {
+  Loader2,
+  ThumbsUp,
+  MessageCircle,
+  ArrowRight,
+  Eye,
+} from "lucide-react";
 import CTASection from "@/components/landing/CTASection";
 import {
   getTopBlogsByCategory,
@@ -146,24 +152,24 @@ const TopBlogsPage = () => {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground group-hover:underline line-clamp-2 mb-1">
+                  <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground group-hover:underline line-clamp-2 mb-2">
                     {blog.title}
                   </h2>
-                  <p className="text-xs md:text-sm text-muted-foreground line-clamp-1 md:line-clamp-2 mb-2">
-                    {blog.description || "No description available."}
-                  </p>
 
                   <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
+                      <span className="text-xs">
+                        <Eye className="w-3 h-3 md:w-4 md:h-4" />
+                      </span>
+                      <span>{blog.views}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
                       <ThumbsUp className="w-3 h-3 md:w-4 md:h-4" />
-                      <span className="hidden xs:inline">{blog.likes}</span>
+                      <span>{blog.likes}</span>
                     </span>
                     <span className="flex items-center gap-1">
                       <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
-                      <span className="hidden xs:inline">{blog.comments}</span>
-                    </span>
-                    <span className="hidden md:inline capitalize text-xs">
-                      {blog.category}
+                      <span>{blog.comments}</span>
                     </span>
                   </div>
                 </div>

@@ -32,12 +32,6 @@ export default function BlogCard({ blog }: { blog: Blog }) {
         </div>
 
         <div className="flex justify-between items-center mt-2">
-          {blog?.category && (
-            <span className="text-xs text-primary font-medium uppercase">
-              #{blog.category}
-            </span>
-          )}
-
           <div className="flex items-center space-x-4 text-muted-foreground text-xs">
             <div className="flex items-center gap-1">
               <Eye className="w-4 h-4" />
@@ -52,6 +46,12 @@ export default function BlogCard({ blog }: { blog: Blog }) {
               <span>{blog?.comments ?? 0}</span>
             </div>
           </div>
+
+          {blog?.category && (
+            <span className="text-xs text-primary font-medium uppercase">
+              #{blog.category}
+            </span>
+          )}
         </div>
       </div>
     </Link>

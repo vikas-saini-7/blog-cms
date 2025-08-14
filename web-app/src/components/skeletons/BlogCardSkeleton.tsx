@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 
 export default function BlogCardSkeleton() {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden px-8">
       {/* Cover Image Skeleton */}
       <Skeleton className="h-48 w-full" />
 
@@ -12,7 +12,7 @@ export default function BlogCardSkeleton() {
         <Skeleton className="h-6 w-4/5" />
 
         {/* Description Skeleton - single line */}
-        <Skeleton className="h-4 w-full" />
+        {/* <Skeleton className="h-4 w-full" /> */}
 
         {/* Stats Row Skeleton */}
         <div className="flex items-center justify-between pt-2">

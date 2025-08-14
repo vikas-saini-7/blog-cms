@@ -30,7 +30,7 @@ export default function SiteHeader() {
   const { data: session, status } = useSession();
 
   return (
-    <header className="w-full border-b sticky top-0 bg-white dark:bg-black z-50 py-2 h-[80] flex items-center">
+    <header className="w-full border-b sticky top-0 bg-white/60 backdrop-blur-md dark:bg-black z-50 py-2 h-[80] flex items-center">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link
           href="/"

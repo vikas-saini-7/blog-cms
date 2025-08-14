@@ -29,7 +29,7 @@ const PopularSection = () => {
 
   if (loading) {
     return (
-      <section className="container mx-auto px-4 py-8 md:py-12">
+      <section className="container mx-auto px-4 py-8 md:py-0">
         <SectionTitle title="Popular Blogs" />
         <BlogSwiperSkeleton />
       </section>

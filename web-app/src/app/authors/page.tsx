@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -169,35 +168,33 @@ const TopAuthorsPage = () => {
                   <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Users className="w-3 h-3 md:w-4 md:h-4" />
-                      <span className="hidden xs:inline">
-                        {author.totalFollowers}
-                      </span>
+                      {author.totalFollowers}
                     </span>
                     <span className="flex items-center gap-1">
                       <FileText className="w-3 h-3 md:w-4 md:h-4" />
-                      <span className="hidden xs:inline">
-                        {author.totalPosts}
-                      </span>
+                      {author.totalPosts}
                     </span>
                     <span className="flex items-center gap-1">
                       <Heart className="w-3 h-3 md:w-4 md:h-4" />
-                      <span className="hidden xs:inline">
-                        {author.totalLikes}
-                      </span>
+                      {author.totalLikes}
                     </span>
-                    <span className="hidden md:flex items-center gap-1">
-                      <MessageCircle className="w-4 h-4" />
+                    <span className="flex items-center gap-1 md:hidden lg:flex">
+                      <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
                       {author.totalComments}
                     </span>
                   </div>
                 </div>
 
                 {/* Stats */}
-                <div className="hidden lg:block text-right text-sm text-muted-foreground shrink-0">
+                <div className="text-right text-xs md:text-sm text-muted-foreground shrink-0 min-w-0">
                   <div className="font-semibold text-foreground text-sm md:text-base">
                     {author.totalViews.toLocaleString()}
                   </div>
-                  <div className="text-xs">Total Views</div>
+                  <div className="text-xs whitespace-nowrap">Total Views</div>
+                  <div className="md:hidden mt-1 flex items-center justify-end gap-1">
+                    <MessageCircle className="w-3 h-3" />
+                    {author.totalComments}
+                  </div>
                 </div>
 
                 {/* Arrow */}

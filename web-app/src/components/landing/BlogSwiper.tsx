@@ -39,7 +39,7 @@ const BlogSwiper: React.FC<BlogSwiperProps> = ({ blogs }) => {
         {blogs.map((blog, idx) => (
           <SwiperSlide key={idx}>
             <Link href={`/blogs/${blog.slug}`} className="group block h-full">
-              <div className="mb-16 bg-card border border-muted rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full min-h-[420px]">
+              <div className="mb-16 bg-card border border-muted rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full min-h-[380px]">
                 <div className="relative w-full aspect-video">
                   <Image
                     src={blog.coverImage as string}
@@ -72,13 +72,13 @@ const BlogSwiper: React.FC<BlogSwiperProps> = ({ blogs }) => {
                   <h2 className="text-lg sm:text-xl font-semibold text-foreground line-clamp-2 mb-2">
                     {blog.title}
                   </h2>
-                  <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+                  {/* <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
                     {blog.description ||
                       "This is dummy description. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eius, culpa?"}
-                  </p>
+                  </p> */}
                   <div className="mt-auto">
                     <span className="text-sm text-primary font-medium hover:underline">
-                      Read more →
+                      Read Blog →
                     </span>
                   </div>
                 </div>

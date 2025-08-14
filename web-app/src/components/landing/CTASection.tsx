@@ -1,26 +1,30 @@
+"use client";
 import React from "react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { IconEdit, IconSpeakerphone, IconStar } from "@tabler/icons-react";
+import { useSession } from "next-auth/react";
 
 const features = [
   {
-    icon: "✍️",
+    icon: IconEdit,
     title: "Easy Editor",
     description: "Write and publish your blog using a clean, intuitive editor.",
   },
   {
-    icon: "📢",
+    icon: IconSpeakerphone,
     title: "Instant Sharing",
     description: "Reach your audience instantly across the web.",
   },
   {
-    icon: "🌟",
+    icon: IconStar,
     title: "Grow Readership",
     description: "Build your personal brand and attract loyal readers.",
   },
 ];
 
 const CTASection = () => {
+  const { data: session, status } = useSession();
   return (
     <section className="container mx-auto py-12 md:py-24 pb-12 px-4">
       {/* Headline */}
@@ -35,30 +39,52 @@ const CTASection = () => {
 
       {/* Features Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-14">
-        {features.map((feature, index) => (
-          <div
-            key={index}
-            className="bg-white transition-colors duration-200 rounded-2xl p-4 md:p-6 text-center shadow-sm"
-          >
-            <div className="text-2xl md:text-3xl mb-3">{feature.icon}</div>
-            <h3 className="text-base md:text-lg font-semibold">
-              {feature.title}
-            </h3>
-            <p className="text-sm text-gray-600 mt-2">{feature.description}</p>
-          </div>
-        ))}
+        {features.map((feature, index) => {
+          const IconComponent = feature.icon;
+          return (
+            <div
+              key={index}
+              className="bg-white transition-colors duration-200 rounded-2xl p-4 md:p-6 text-center shadow-sm"
+            >
+              <div className="text-2xl md:text-3xl mb-3">
+                <IconComponent size={32} className="mx-auto text-primary" />
+              </div>
+              <h3 className="text-base md:text-lg font-semibold">
+                {feature.title}
+              </h3>
+              <p className="text-sm text-gray-600 mt-2">
+                {feature.description}
+              </p>
+            </div>
+          );
+        })}
       </div>
 
       {/* CTA Button */}
       <div className="text-center mt-8 md:mt-14">
-        <Link href="/auth/register">
-          <Button
-            size="lg"
-            className="text-sm md:text-md font-bold py-4 px-6 md:py-6 md:px-8 cursor-pointer"
+        {session ? (
+          <a
+            href="https://pluma-admin.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Start Writing
-          </Button>
-        </Link>
+            <Button
+              size="lg"
+              className="text-sm md:text-md font-bold py-4 px-6 md:py-6 md:px-8 cursor-pointer"
+            >
+              Go to Dashboard
+            </Button>
+          </a>
+        ) : (
+          <Link href="/auth/login">
+            <Button
+              size="lg"
+              className="text-sm md:text-md font-bold py-4 px-6 md:py-6 md:px-8 cursor-pointer"
+            >
+              Start Writing
+            </Button>
+          </Link>
+        )}
       </div>
     </section>
   );

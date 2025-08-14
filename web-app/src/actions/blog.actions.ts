@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 
 export interface BlogFilters {
-  tag?: string;
+  category?: string;
   sort?: "latest" | "popular";
   time?: "24h" | "7d" | "30d" | "all";
   page?: number;
@@ -41,7 +41,7 @@ export async function fetchBlogs(
 ): Promise<BlogResponse> {
   try {
     const {
-      tag = "",
+      category = "",
       sort = "latest",
       time = "all",
       page = 1,
@@ -56,12 +56,12 @@ export async function fetchBlogs(
       status: "PUBLISHED",
     };
 
-    // Filter by tag if provided
-    if (tag) {
-      where.postTags = {
+    // Filter by category if provided
+    if (category) {
+      where.postCategories = {
         some: {
-          tag: {
-            slug: tag,
+          category: {
+            slug: category,
           },
         },
       };

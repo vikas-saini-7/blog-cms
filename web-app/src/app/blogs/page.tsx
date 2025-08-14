@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import BlogCard from "@/components/common/BlogCard";
-import { fetchBlogs, getTags } from "@/actions/blog.actions";
+import { fetchBlogs, getCategories } from "@/actions/blog.actions";
 import BlogCardSkeleton from "@/components/skeletons/BlogCardSkeleton";
 
 const SORTS = ["latest", "popular"];
@@ -29,12 +29,12 @@ function BlogsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const tag = searchParams.get("tag") ?? "";
+  const category = searchParams.get("category") ?? "";
   const sort = searchParams.get("sort") ?? "latest";
   const time = searchParams.get("time") ?? "all";
 
   const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [tags, setTags] = useState<
+  const [categories, setCategories] = useState<
     Array<{ id: string; name: string; slug: string }>
   >([]);
   const [page, setPage] = useState(1);
@@ -52,7 +52,7 @@ function BlogsContent() {
       setLoading(true);
       try {
         const response = await fetchBlogs({
-          tag: tag || undefined,
+          category: category || undefined,
           sort: sort as "latest" | "popular",
           time: time as "24h" | "7d" | "30d" | "all",
           page: pageNum,
@@ -75,21 +75,21 @@ function BlogsContent() {
         setInitialLoad(false);
       }
     },
-    [tag, sort, time, loading]
+    [category, sort, time, loading]
   );
 
-  // Load tags on component mount
+  // Load categories on component mount
   useEffect(() => {
-    const loadTags = async () => {
+    const loadCategories = async () => {
       try {
-        const tagsData = await getTags();
-        setTags(tagsData);
+        const categoriesData = await getCategories();
+        setCategories(categoriesData);
       } catch (error) {
-        console.error("Error fetching tags:", error);
+        console.error("Error fetching categories:", error);
       }
     };
 
-    loadTags();
+    loadCategories();
   }, []);
 
   // Load blogs when filters change
@@ -99,7 +99,7 @@ function BlogsContent() {
     setHasMore(true);
     setInitialLoad(true);
     loadBlogs(1, true);
-  }, [tag, sort, time]);
+  }, [category, sort, time]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -139,32 +139,29 @@ function BlogsContent() {
       </div>
 
       <div className="space-y-4">
-        {/* Tags Section */}
+        {/* Categories Section */}
         <div className="space-y-2">
-          {/* <h3 className="text-sm font-semibold text-gray-700">
-            Filter by Tags
-          </h3> */}
           <ScrollArea className="w-full">
             <div className="flex items-center gap-2 pb-2">
               <Button
-                variant={!tag ? "default" : "outline"}
+                variant={!category ? "default" : "outline"}
                 size="sm"
                 className="text-xs md:text-sm rounded-full whitespace-nowrap"
-                onClick={() => updateQuery("tag", "")}
+                onClick={() => updateQuery("category", "")}
               >
                 All
               </Button>
-              {tags.map((t) => {
-                const isActive = tag === t.slug;
+              {categories.map((c) => {
+                const isActive = category === c.slug;
                 return (
                   <Button
-                    key={t.id}
+                    key={c.id}
                     variant={isActive ? "default" : "outline"}
                     size="sm"
                     className="text-xs md:text-sm rounded-full whitespace-nowrap"
-                    onClick={() => updateQuery("tag", t.slug)}
+                    onClick={() => updateQuery("category", c.slug)}
                   >
-                    #{t.name}
+                    {c.name}
                   </Button>
                 );
               })}
@@ -225,14 +222,14 @@ function BlogsContent() {
       </div>
 
       {/* Blog Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {blogs.map((blog) => (
           <BlogCard key={blog.id} blog={blog} />
         ))}
 
         {loading &&
           initialLoad &&
-          [...Array(4)].map((_, i) => <BlogCardSkeleton key={i} />)}
+          [...Array(8)].map((_, i) => <BlogCardSkeleton key={i} />)}
       </div>
 
       {/* Scroll loading spinner */}
