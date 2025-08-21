@@ -1,7 +1,9 @@
-require("./configs/env");
-const app = require("./app");
+// using import alias @/ --> /src/* for deeply nested paths
+require("module-alias/register");
 
-const PORT = process.env.PORT || 5000;
+const app = require("./app.js");
+
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);

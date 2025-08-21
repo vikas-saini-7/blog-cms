@@ -1,13 +1,20 @@
 const express = require("express");
-const userRoutes = require("./routes/user.routes");
+const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
+const routes = require("./routes/index.js");
 
 const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
+
+// req logging middleware
+app.use(morgan("tiny"));
 
 // Routes
-app.use("/api/v1/users", userRoutes);
+app.use("/api", routes);
 
 // health route
 app.use("/api/health", (req, res) => {
