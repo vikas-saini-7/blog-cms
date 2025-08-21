@@ -132,7 +132,7 @@ const TopAuthorsPage = () => {
               <Link
                 href={`/authors/${author.username || author.id}`}
                 key={author.id}
-                className="group flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-card border border-muted rounded-lg md:rounded-xl hover:shadow-md transition-all duration-200"
+                className="group flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-card border rounded-lg md:rounded-xl transition-all duration-200"
               >
                 {/* Rank */}
                 <div className="text-lg md:text-xl lg:text-2xl font-bold text-muted-foreground w-6 md:w-8 shrink-0">
@@ -142,7 +142,7 @@ const TopAuthorsPage = () => {
                 {/* Avatar */}
                 <div className="shrink-0">
                   <Avatar className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24">
-                    <AvatarImage src={author.avatar || ""} alt={author.name} />
+                    <AvatarImage className="group-hover:scale-105 transition-all ease-in-out" src={author.avatar || ""} alt={author.name} />
                     <AvatarFallback className="text-sm md:text-lg font-semibold">
                       {author.name[0]}
                     </AvatarFallback>
@@ -151,7 +151,7 @@ const TopAuthorsPage = () => {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground group-hover:underline mb-1">
+                  <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground mb-1">
                     {author.name}
                   </h2>
                   {author.username && (
@@ -186,19 +186,19 @@ const TopAuthorsPage = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="text-right text-xs md:text-sm text-muted-foreground shrink-0 min-w-0">
+                <div className="text-right text-xs md:text-sm text-muted-foreground shrink-0 min-w-0 md:mr-8">
                   <div className="font-semibold text-foreground text-sm md:text-base">
                     {author.totalViews.toLocaleString()}
                   </div>
                   <div className="text-xs whitespace-nowrap">Total Views</div>
-                  <div className="md:hidden mt-1 flex items-center justify-end gap-1">
+                  {/* <div className="md:hidden mt-1 flex items-center justify-end gap-1">
                     <MessageCircle className="w-3 h-3" />
                     {author.totalComments}
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Arrow */}
-                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:translate-x-1 transition-transform shrink-0" />
+                {/* <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:translate-x-1 transition-transform shrink-0" /> */}
               </Link>
             ))}
           </div>

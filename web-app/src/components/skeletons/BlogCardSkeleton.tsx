@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 
 export default function BlogCardSkeleton() {
   return (
-    <Card className="overflow-hidden px-8">
+    <Card className="overflow-hidden px-8 shadow-none border-none">
       {/* Cover Image Skeleton */}
       <Skeleton className="h-48 w-full" />
 

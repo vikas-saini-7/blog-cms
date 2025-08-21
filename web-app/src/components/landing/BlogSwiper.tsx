@@ -39,7 +39,7 @@ const BlogSwiper: React.FC<BlogSwiperProps> = ({ blogs }) => {
         {blogs.map((blog, idx) => (
           <SwiperSlide key={idx}>
             <Link href={`/blogs/${blog.slug}`} className="group block h-full">
-              <div className="mb-16 bg-card border border-muted rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 flex flex-col h-full min-h-[380px]">
+              <div className="mb-16 bg-card rounded-2xl overflow-hidden transition-all duration-300 flex flex-col h-full min-h-[380px] shadow-none border">
                 <div className="relative w-full aspect-video">
                   <Image
                     src={blog.coverImage as string}

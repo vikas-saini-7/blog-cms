@@ -6,12 +6,12 @@ import CTASection from "@/components/landing/CTASection";
 
 export default function Home() {
   return (
-    <div>
+    <>
       <Hero />
       <FeaturedBlogsSesion />
       <PopularSection />
       {/* <TrendingByTags /> */}
       <CTASection />
-    </div>
+    </>
   );
 }

@@ -130,7 +130,7 @@ const TopBlogsPage = () => {
               <Link
                 href={`/blogs/${blog.slug}`}
                 key={blog.id}
-                className="group flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-card border border-muted rounded-lg md:rounded-xl hover:shadow-md transition-all duration-200"
+                className="group flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-card border rounded-lg md:rounded-xl transition-all duration-200"
               >
                 {/* Rank */}
                 <div className="text-lg md:text-xl lg:text-2xl font-bold text-muted-foreground w-6 md:w-8 shrink-0">
@@ -152,7 +152,7 @@ const TopBlogsPage = () => {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground group-hover:underline line-clamp-2 mb-2">
+                  <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground line-clamp-2 mb-2">
                     {blog.title}
                   </h2>
 
@@ -175,7 +175,7 @@ const TopBlogsPage = () => {
                 </div>
 
                 {/* Arrow */}
-                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:translate-x-1 transition-transform shrink-0" />
+                {/* <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:translate-x-1 transition-transform shrink-0" /> */}
               </Link>
             ))}
           </div>

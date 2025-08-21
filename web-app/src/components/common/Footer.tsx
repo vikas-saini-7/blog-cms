@@ -1,5 +1,7 @@
+"use client";
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type FooterLink = {
   label: string;
@@ -52,8 +54,17 @@ const footerSections: FooterSection[] = [
 ];
 
 const Footer: React.FC = () => {
+  const pathname = usePathname();
+
+  if (
+    pathname.includes("/auth/login") ||
+    pathname.includes("/auth/register") ||
+    pathname.includes("/auth/onboarding")
+  ) {
+    return null;
+  }
   return (
-    <footer className="bg-gray-100 text-gray-800 mt-24 border-t">
+    <footer className="bg-white text-gray-800 mt-8">
       <div className="container mx-auto px-4 py-16">
         {/* Footer Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
@@ -93,7 +104,7 @@ const Footer: React.FC = () => {
 
         {/* Bottom Info */}
         <div className="mt-12 text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} BLOG CMS. All rights reserved.
+          © {new Date().getFullYear()} PLUMA WEB. All rights reserved.
         </div>
       </div>
     </footer>

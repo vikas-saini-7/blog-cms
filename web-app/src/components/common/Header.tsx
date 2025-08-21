@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut, useSession } from "next-auth/react";
 import HeaderAuthSkeleton from "../skeletons/HeaderAuthSkeleton";
+import { usePathname } from "next/navigation";
 
 const commonLinks = [
   { href: "/popular", label: "Popular" },
@@ -28,6 +29,15 @@ const userDropdownLinks = [
 
 export default function SiteHeader() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
+
+  if (
+    pathname.includes("/auth/login") ||
+    pathname.includes("/auth/register") ||
+    pathname.includes("/auth/onboarding")
+  ) {
+    return null;
+  }
 
   return (
     <header className="w-full border-b sticky top-0 bg-white/60 backdrop-blur-md dark:bg-black z-50 py-2 h-[80] flex items-center">
@@ -93,6 +103,11 @@ export default function SiteHeader() {
                   {userDropdownLinks.map((link) => (
                     <DropdownMenuItem asChild key={link.href}>
                       <Link
+                        target={
+                          link.href === "https://pluma-admin.vercel.app"
+                            ? "_blank"
+                            : ""
+                        }
                         href={link.href}
                         className="block px-3 py-2 rounded-md text-sm hover:bg-orange-100  transition"
                       >
