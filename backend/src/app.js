@@ -11,7 +11,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 // req logging middleware
-app.use(morgan("tiny"));
+// Only using req logger in development mode only
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("tiny"));
+}
 
 // Routes
 app.use("/api", routes);

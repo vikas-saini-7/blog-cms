@@ -1,9 +1,12 @@
 const { getProfile } = require("@/services/web/profile.service");
 
+/*
+ Get Profile of currently loggeg in user
+*/
 exports.profile = async (req, res) => {
   try {
-    const { id } = req.user;
-    const user = await getProfile({ id });
+    const userId = req.user.id;
+    const user = await getProfile({ userId });
 
     res.status(201).json({
       success: true,
