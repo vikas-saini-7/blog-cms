@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/common/AppSidebar";
 import DashboardHeader from "@/components/common/DashboardHeader";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import GlobalProvider from "@/providers/GlobalProviders";
 
 export default function Layout({ children }: { children: React.ReactNode }) {

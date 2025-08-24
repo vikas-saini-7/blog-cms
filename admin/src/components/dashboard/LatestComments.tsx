@@ -45,7 +45,7 @@ const LatestComments = () => {
   };
 
   return (
-    <Card className="col-span-1 md:col-span-1">
+    <Card className="col-span-1 md:col-span-1 shadow-none">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageCircle className="h-4 w-4" />

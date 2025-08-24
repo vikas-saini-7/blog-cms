@@ -28,7 +28,7 @@ const CountStats = () => {
     return (
       <>
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="col-span-1">
+          <Card key={i} className="col-span-1 shadow-none">
             <CardHeader className="pb-2">
               <div className="h-4 bg-gray-200 rounded animate-pulse" />
             </CardHeader>
@@ -67,7 +67,7 @@ const CountStats = () => {
   return (
     <>
       {statsData.map((stat, index) => (
-        <Card key={index} className="col-span-1">
+        <Card key={index} className="col-span-1 shadow-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
             <stat.icon className="h-4 w-4 text-muted-foreground" />

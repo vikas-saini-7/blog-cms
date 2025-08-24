@@ -44,7 +44,7 @@ const RecentBlogs = () => {
   };
 
   return (
-    <Card className="col-span-1 md:col-span-2">
+    <Card className="col-span-1 md:col-span-2 shadow-none">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />

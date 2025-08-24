@@ -17,7 +17,7 @@
   margin-top: 2rem;
   margin-bottom: 1rem;
   color: #111827; /* Gray-900 */
-  font-family: var(--font-heading);
+  /* font-family: var(--font-heading); */
 }
 
 .blog-content h1 {

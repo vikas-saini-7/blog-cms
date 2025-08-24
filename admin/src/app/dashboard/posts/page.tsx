@@ -19,7 +19,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Trash2, Eye, Search, RefreshCw } from "lucide-react";
+import {
+  IconPencil,
+  IconTrash,
+  IconEye,
+  IconSearch,
+  IconRefresh,
+} from "@tabler/icons-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Blog } from "@/types";
@@ -186,7 +192,7 @@ export default function PostsPage() {
             onClick={handleRefresh}
             disabled={refreshing}
           >
-            <RefreshCw
+            <IconRefresh
               className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
             />
           </Button>
@@ -222,7 +228,7 @@ export default function PostsPage() {
         </Tabs>
 
         <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             placeholder="Search blogs..."
             value={searchInput}
@@ -239,7 +245,7 @@ export default function PostsPage() {
         <div className="bg-white border rounded-lg p-12 text-center">
           <div className="space-y-3">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
-              <Pencil className="w-8 h-8 text-gray-400" />
+              <IconPencil className="w-8 h-8 text-gray-400" />
             </div>
             <h3 className="text-lg font-medium text-gray-900">
               {searchInput || currentFilter !== "all"
@@ -338,7 +344,7 @@ export default function PostsPage() {
                             size="icon"
                             className="h-8 w-8"
                           >
-                            <Pencil className="w-3 h-3" />
+                            <IconPencil className="w-3 h-3" />
                           </Button>
                         </Link>
                         <Link href={`/preview/${blog.id}`} target="_blank">
@@ -347,7 +353,7 @@ export default function PostsPage() {
                             size="icon"
                             className="h-8 w-8"
                           >
-                            <Eye className="w-3 h-3" />
+                            <IconEye className="w-3 h-3" />
                           </Button>
                         </Link>
                         <Button
@@ -356,7 +362,7 @@ export default function PostsPage() {
                           className="h-8 w-8"
                           onClick={() => handleDeleteClick(blog)}
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <IconTrash className="w-3 h-3" />
                         </Button>
                       </div>
                     </TableCell>

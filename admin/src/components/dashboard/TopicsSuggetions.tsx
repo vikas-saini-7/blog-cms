@@ -24,7 +24,7 @@ const TopicsSuggetions = () => {
   }, []);
 
   return (
-    <Card className="gap-2 border-purple-200 shadow-sm border-dashed">
+    <Card className="gap-2 border-purple-200 border-dashed shadow-none">
       <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
@@ -56,18 +56,17 @@ const TopicsSuggetions = () => {
           topics.map((topic, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between py-3 px-3 rounded-lg border border-gray-100 hover:border-primary/20 hover:bg-purple-50/50 group transition-all duration-200 cursor-pointer"
+              className="flex items-center justify-between py-3 px-3 rounded-lg border border-gray-100 hover:bg-purple-50/50 group transition-all duration-200"
             >
               <p className="text-sm text-gray-700 flex-1 font-medium">
                 {topic}
               </p>
-              {/* <Button
-                size="sm"
-                className="opacity-0 group-hover:opacity-100 transition-all duration-200 bg-primary text-white h-8 px-3 text-xs font-medium shadow-sm"
+              <Button
+                className="opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer bg-primary text-white hover:bg-primary/90 hover:text-white"
+                variant="outline"
               >
-                <PenTool className="h-3 w-3 mr-1.5" />
                 Start Writing
-              </Button> */}
+              </Button>
             </div>
           ))
         )}

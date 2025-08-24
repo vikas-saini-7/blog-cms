@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -44,8 +43,9 @@ export default function SiteHeader() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link
           href="/"
-          className="text-xl font-bold text-orange-500 font-heading"
+          className="text-xl font-bold font-heading flex items-center"
         >
+          <img src="/pluma_icon.png" alt="Logo" className="h-10 mr-2 rounded" />
           PLUMA WEB
         </Link>
 

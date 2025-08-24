@@ -39,14 +39,14 @@ const items = [
     icon: FileText,
   },
   {
+    title: "Followers",
+    url: "/dashboard/followers",
+    icon: Users,
+  },
+  {
     title: "Comments",
     url: "/dashboard/comments",
     icon: MessageSquare,
-  },
-  {
-    title: "My Followers",
-    url: "/dashboard/my-followers",
-    icon: Users,
   },
   {
     title: "Analytics",
@@ -68,17 +68,24 @@ export function AppSidebar() {
     <Sidebar className="w-64">
       <SidebarContent className="flex flex-col h-full">
         <div className="p-6 border-b">
-          <Link href="/" className="flex flex-col space-y-0.5 group">
-            <span className="text-xl font-bold tracking-tight transition-colors">
-              Pluma Admin
+          <Link href="/dashboard" className="flex flex-col space-y-0.5 group">
+            <span className="text-xl font-bold tracking-tight transition-colors flex items-center">
+              <img
+                src="/pluma_icon.png"
+                alt="Logo"
+                className="h-10 mr-3 rounded"
+              />
+              <div>
+                <p>Pluma Admin</p>
+                {status !== "loading" ? (
+                  <p className="text-xs text-muted-foreground font-medium">
+                    @{session?.user?.username || "username"}
+                  </p>
+                ) : (
+                  <Skeleton className="h-3 w-20 mt-1" />
+                )}
+              </div>
             </span>
-            {status !== "loading" ? (
-              <span className="text-xs text-muted-foreground">
-                @{session?.user?.username || "username"}
-              </span>
-            ) : (
-              <Skeleton className="h-3 w-20 mt-1" />
-            )}
           </Link>
         </div>
 
